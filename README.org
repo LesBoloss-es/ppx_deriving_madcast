@@ -1,4 +1,14 @@
 #+TITLE: ppx_deriving_madcast
+#+STARTUP: indent
+
+* Philosophy
+The convertion should never lose information. That is guaranteed by
+the fact that
+
+: [%madcast: t2 -> t1] [%madcast: t1 -> t2] (x : t1)
+
+must always return =x=, except when =[%madcast: t1 -> t2]= (that is, the
+first cast applied to =x=) raises an exception.
 
 * Installation
 ** Dependencies
