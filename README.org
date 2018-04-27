@@ -1,2 +1,7 @@
-opam-installer
-ppxfind
+#+TITLE: ppx_deriving_madcast
+
+* Installation
+** Dependencies
+   - opam-installer
+   - ppxfind
+   ... and others

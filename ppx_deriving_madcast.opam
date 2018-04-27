@@ -1,24 +1,18 @@
 opam-version: "1.2"
-maintainer: "whitequark <whitequark@whitequark.org>"
-authors: [ "whitequark <whitequark@whitequark.org>" ]
-license: "MIT"
-homepage: "https://github.com/whitequark/ppx_deriving_yojson"
-doc: "http://whitequark.github.io/ppx_deriving_yojson"
-bug-reports: "https://github.com/whitequark/ppx_deriving_yojson/issues"
-dev-repo: "git://github.com/whitequark/ppx_deriving_yojson.git"
-tags: [ "syntax" "json" ]
-build: [
-  ["jbuilder" "subst" "-n" name] {pinned}
-  ["jbuilder" "build" "-p" name "-j" jobs]
-]
-build-test: [["jbuilder" "runtest" "-p" name "-j" jobs]]
+maintainer: "Niols <niols@niols.fr>"
+authors: [ "Niols <niols@niols.fr>" ]
+license: "GPL3"
+homepage: "https://github.com/Niols/ppx_deriving_madcast"
+doc: "http://github.com/Niols/ppx_deriving_madcast"
+bug-reports: "https://github.com/Niols/ppx_deriving_madcast/issues"
+dev-repo: "git://github.com/Niols/ppx_deriving_madcast.git"
+tags: [ "syntax" ]
+build: [[ "make" ]]
+build-test: [[ "make test" ]]
 depends: [
-  "yojson"
-  "result"
-  "ppx_deriving" {>= "4.0" & < "5.0"}
-  "ppx_tools"    {build}
-  "ppxfind"      {build}
-  "jbuilder"     {build}
-  "cppo"         {build}
-  "ounit"        {test}
+  "ppx_deriving"
+  "ppx_tools"
+  "ppxfind"
+  "jbuilder"
+  "opam-installer"
 ]
