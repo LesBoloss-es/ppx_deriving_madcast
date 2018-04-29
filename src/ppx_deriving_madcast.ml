@@ -19,23 +19,10 @@ end
 exception CantCast of core_type * core_type * string
 
 let rec madcast itype otype =
-  match itype.ptyp_desc , otype.ptyp_desc with
+  match itype , otype with
 
-  (* string -> int *)
-    
-  | Ptyp_constr ({ txt = Lident "string" ; _ }, []) ,
-    Ptyp_constr ({ txt = Lident "int" ; _ }, []) ->
-     { pexp_desc = Pexp_ident (mknoloc (Lident "int_of_string")) ;
-       pexp_loc = Location.none ;
-       pexp_attributes = [] }
-
-  (* int -> string *)
-    
-  | Ptyp_constr ({ txt = Lident "int" ; _ }, []) ,
-    Ptyp_constr ({ txt = Lident "string" ; _ }, []) ->
-     { pexp_desc = Pexp_ident (mknoloc (Lident "string_of_int")) ;
-       pexp_loc = Location.none ;
-       pexp_attributes = [] }
+  | [%type: string] , [%type: int] -> [%expr int_of_string]
+  | [%type: int] , [%type: string] -> [%expr string_of_int]
 
   (* tuple to tuple
 
@@ -47,8 +34,8 @@ let rec madcast itype otype =
      gives
 
          (fun (c1,c2) -> (int_of_string c1, string_of_int c2)) *)
-    
-  | Ptyp_tuple itypes , Ptyp_tuple otypes ->
+
+  | {ptyp_desc=Ptyp_tuple itypes; _} , {ptyp_desc=Ptyp_tuple otypes; _} ->
      (
        if List.length itypes = List.length otypes then
          { pexp_desc =

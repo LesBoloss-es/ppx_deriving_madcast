@@ -3,8 +3,6 @@
 (library
  ((name ppx_deriving_madcast)
   (public_name ppx_deriving_madcast)
-  (synopsis "[%madcast:]")
-  (libraries (ppx_deriving.api ppx_tools))
+  (libraries (ppx_deriving.api))
   (preprocess (action (run ppxfind -legacy ppx_tools.metaquot --as-pp ${<})))
-  (modules (ppx_deriving_madcast))
   (kind ppx_deriver)))
