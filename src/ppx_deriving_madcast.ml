@@ -18,7 +18,7 @@ module List = struct
     mapi2 f 0 al bl
 end
             
-exception CantCast of core_type * core_type * string
+exception CannotCast of core_type * core_type * string
 
 let rec madcast itype otype =
   match itype , otype with
@@ -55,10 +55,10 @@ let rec madcast itype otype =
                      [Nolabel, Exp.ident (mknoloc (Lident ("c"^(string_of_int i))))])
                  itypes otypes))
        else
-         raise (CantCast (itype, otype, "cannot cast tuples of different sizes"))
+         raise (CannotCast (itype, otype, "cannot cast tuples of different sizes"))
      )
     
-  | _ -> raise (CantCast (itype, otype, ""))
+  | _ -> raise (CannotCast (itype, otype, ""))
 
 (** When reading [\[%madcast: t\]], we call [core_type] on the type
    [t], and it returns an OCaml expression that will replace it. *)
@@ -69,7 +69,7 @@ let core_type ptype =
        try
          madcast itype otype
        with
-       | CantCast (itype, otype, reason) ->
+       | CannotCast (itype, otype, reason) ->
           Ppx_deriving.(
            raise_errorf
              "Cannot cast %s to %s: %s"
