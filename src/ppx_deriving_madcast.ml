@@ -1,8 +1,10 @@
+
 open Parsetree
 open Asttypes
 open Longident
-let mknoloc = Location.mknoloc
-
+open Ast_helper
+open Location
+   
 module List = struct
   include List
 
@@ -20,7 +22,6 @@ exception CantCast of core_type * core_type * string
 
 let rec madcast itype otype =
   match itype , otype with
-
   | [%type: string] , [%type: int] -> [%expr int_of_string]
   | [%type: int] , [%type: string] -> [%expr string_of_int]
 
@@ -35,46 +36,24 @@ let rec madcast itype otype =
 
          (fun (c1,c2) -> (int_of_string c1, string_of_int c2)) *)
 
-  | {ptyp_desc=Ptyp_tuple itypes; _} , {ptyp_desc=Ptyp_tuple otypes; _} ->
+  | {ptyp_desc=Ptyp_tuple itypes} , {ptyp_desc=Ptyp_tuple otypes} ->
      (
        if List.length itypes = List.length otypes then
-         { pexp_desc =
-             Pexp_fun (
-                 Nolabel ,
-                 None ,
-                 (* function that matches a tuple (c1,c2,...,cn) as
-                    argument *)
-                 { ppat_desc = Ppat_tuple (
-                     List.mapi (fun i _ ->
-                       { ppat_desc =
-                           Ppat_var (mknoloc ("c"^(string_of_int i))) ;
-                         ppat_loc = Location.none ;
-                         ppat_attributes = [] })
-                       itypes
-                     ) ;
-                   ppat_loc = Location.none ;
-                   ppat_attributes = [] } ,
-                 (* and that return a tuple of the same size... *)
-                 { pexp_desc = Pexp_tuple (
-                     List.mapi2 (fun i isubtype osubtype ->
-                       { pexp_desc =
-                           (* ...and each component of the tuple is
-                              the madcast for the subtypes applied to
-                              the right argument *)
-                           Pexp_apply (
-                               madcast isubtype osubtype,
-                               [(Nolabel, { pexp_desc = Pexp_ident (mknoloc (Lident ("c"^(string_of_int i)))) ;
-                                            pexp_loc = Location.none ;
-                                            pexp_attributes = [] })]
-                             ) ;
-                         pexp_loc = Location.none ;
-                         pexp_attributes = [] })
-                       itypes otypes) ;
-                   pexp_loc = Location.none ;
-                   pexp_attributes = [] }
-               ) ;
-           pexp_loc = Location.none ;
-           pexp_attributes = [] }
+         Exp.fun_
+           Nolabel None
+           (Pat.tuple
+              (List.mapi
+                 (fun i _ ->
+                   Pat.var
+                     (mknoloc ("c"^(string_of_int i))))
+                 itypes))
+           (Exp.tuple
+              (List.mapi2
+                 (fun i isubtype osubtype ->
+                   Exp.apply
+                     (madcast isubtype osubtype)
+                     [Nolabel, Exp.ident (mknoloc (Lident ("c"^(string_of_int i))))])
+                 itypes otypes))
        else
          raise (CantCast (itype, otype, "cannot cast tuples of different sizes"))
      )
