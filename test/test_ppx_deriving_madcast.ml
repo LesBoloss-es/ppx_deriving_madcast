@@ -7,6 +7,16 @@ let () =
   Format.printf "(%d,%s)@." a b
 
 let () =
+  [|1; 2|]
+  |> [%madcast: int array -> int array]
+  |> (fun a -> Format.printf "%d@." a.(0))
+
+let () =
+  [|1; 2|]
+  |> [%madcast: int array -> string array]
+  |> (fun a -> Format.printf "%s@." a.(1))
+  
+let () =
   assert (
       ([%madcast: (string * int) -> (int * string)]
          ([%madcast: (int * string) -> (string * int)] (1, "2")))
