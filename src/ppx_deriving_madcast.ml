@@ -7,108 +7,252 @@ open Location
 
 open Parsetree_utils
 
-module List = struct
-  include List
 
-  let mapi2 f al bl =
-    let rec mapi2 f i al bl =
-      match al , bl with
-      | [] , [] -> []
-      | a :: al' , b :: bl' -> (f i a b) :: mapi2 f (i+1) al' bl'
-      | _ -> assert false
-    in
-    mapi2 f 0 al bl
+module Rule = struct
+  type t =
+    { name : string ;
+      matcher : (core_type * core_type) -> (core_type * core_type) list option ;
+      builder : expression list -> expression }
+
+  let rules = Hashtbl.create 8
+
+  let register rule =
+    Hashtbl.add rules rule.name rule
+
+  let lookup =
+    Hashtbl.find rules
+
+  let fold f =
+    Hashtbl.fold (fun _ rule x -> f rule x) rules
 end
 
-exception CannotCast of core_type * core_type * string
+(* ============================== [ Identity ] ============================== *)
 
-let rec madcast itype otype =
-  match itype , otype with
+let () =
+  let name = "'a -> 'a" in
+  let matcher (itype, otype) =
+    if equal_core_type itype otype
+    then Some []
+    else None
+  in
+  let builder l =
+    assert (l = []);
+    [%expr fun x -> x]
+  in
+  Rule.(register { name ; matcher ; builder })
 
-  (* Identity *)
-  | _ , _ when equal_core_type itype otype -> [%expr fun x -> x]
+(* ============================= [ Base types ] ============================= *)
 
-  (* Base types: bool, char, float, int, string *)
-  | [%type: bool]   , [%type: char]   -> raise (CannotCast (itype, otype, ""))
-  | [%type: bool]   , [%type: float]  -> [%expr function false -> 0. | true -> 1.]
-  | [%type: bool]   , [%type: int]    -> [%expr function false -> 0 | true -> 1]
-  | [%type: bool]   , [%type: string] -> [%expr string_of_bool]
-  | [%type: char]   , [%type: bool]   -> raise (CannotCast (itype, otype, ""))
-  | [%type: char]   , [%type: float]  -> raise (CannotCast (itype, otype, ""))
-  | [%type: char]   , [%type: int]    -> [%expr int_of_char]
-  | [%type: char]   , [%type: string] -> [%expr String.make 1]
-  | [%type: float]  , [%type: bool]   -> raise (CannotCast (itype, otype, ""))
-  | [%type: float]  , [%type: char]   -> raise (CannotCast (itype, otype, ""))
-  | [%type: float]  , [%type: int]    -> raise (CannotCast (itype, otype, ""))
-  | [%type: float]  , [%type: string] -> [%expr string_of_float]
-  | [%type: int]    , [%type: bool]   -> [%expr function 0 -> false | 1 -> true | _ -> failwith "madcast: int -> bool"]
-  | [%type: int]    , [%type: char]   -> [%expr fun i -> try char_of_int i with Failure _ -> failwith "madcast: int -> char"]
-  | [%type: int]    , [%type: float]  -> [%expr float_of_int]
-  | [%type: int]    , [%type: string] -> [%expr string_of_int]
-  | [%type: string] , [%type: bool]   -> [%expr fun s -> try bool_of_string s with Failure _ -> failwith "madcast: string -> bool"]
-  | [%type: string] , [%type: char]   -> [%expr fun s -> if String.length s = 1 then s.[0] else failwith "madcast: string -> char"]
-  | [%type: string] , [%type: float]  -> [%expr fun s -> try float_of_string s with Failure _ -> failwith "madcast: string -> float"]
-  | [%type: string] , [%type: int]    -> [%expr fun s -> try int_of_string s with Failure _ -> failwith "madcast: string -> int"]
+let () =
+  [ ( "bool -> float",
+      [%type: bool], [%type: float],
+      [%expr function
+          | false -> 0.
+          | true -> 1.] );
 
-  (* Array, list *)
-  | [%type: [%t? isubtype] array] , [%type: [%t? osubtype] array] -> [%expr Array.map [%e madcast isubtype osubtype]]
-  | [%type: [%t? isubtype] array] , [%type: [%t? osubtype] list]  -> [%expr fun a -> Array.to_list a |> List.map [%e madcast isubtype osubtype]]
-  | [%type: [%t? isubtype] list]  , [%type: [%t? osubtype] array] -> [%expr fun l -> List.map [%e madcast isubtype osubtype] l |> Array.of_list]
-  | [%type: [%t? isubtype] list]  , [%type: [%t? osubtype] list]  -> [%expr List.map [%e madcast isubtype osubtype]]
+    ( "bool -> int",
+      [%type: bool], [%type: int],
+      [%expr function
+          | false -> 0
+          | true -> 1] );
 
-  (* tuple to tuple
+    ( "bool -> string",
+      [%type: bool], [%type: string],
+      [%expr string_of_bool] );
 
-     check that they are of the same size and that we can cast each
-     components. example:
+    ( "char -> int",
+      [%type: char], [%type: int],
+      [%expr int_of_char] );
 
-         [%madcast: (string * int) -> (int * string)]
+    ( "char -> string" ,
+      [%type: char], [%type: string],
+      [%expr String.make 1] );
 
-     gives
+    ( "float -> string",
+      [%type: float], [%type: string],
+      [%expr string_of_float] );
 
-         (fun (c1,c2) -> (int_of_string c1, string_of_int c2)) *)
+    ( "int -> bool",
+      [%type: int], [%type: bool],
+      [%expr function
+          | 0 -> false
+          | 1 -> true
+          | _ -> failwith "madcast: int -> bool"] );
 
-  | {ptyp_desc=Ptyp_tuple itypes} , {ptyp_desc=Ptyp_tuple otypes} ->
-     (
-       if List.length itypes = List.length otypes then
-         Exp.fun_
-           Nolabel None
-           (Pat.tuple
-              (List.mapi
-                 (fun i _ ->
-                   Pat.var
-                     (mknoloc ("c"^(string_of_int i))))
-                 itypes))
-           (Exp.tuple
-              (List.mapi2
-                 (fun i isubtype osubtype ->
-                   Exp.apply
-                     (madcast isubtype osubtype)
-                     [Nolabel, Exp.ident (mknoloc (Lident ("c"^(string_of_int i))))])
-                 itypes otypes))
-       else
-         raise (CannotCast (itype, otype, "cannot cast tuples of different sizes"))
-     )
+    ( "int -> char",
+      [%type: int], [%type: char],
+      [%expr fun i ->
+          try
+            char_of_int i
+          with
+            Failure _ -> failwith "madcast: int -> char"] );
 
-  | _ -> raise (CannotCast (itype, otype, ""))
+    ( "int -> float",
+      [%type: int], [%type: float],
+      [%expr float_of_int] );
 
-(** When reading [\[%madcast: t\]], we call [core_type] on the type
-   [t], and it returns an OCaml expression that will replace it. *)
-let core_type ptype =
-  match ptype.ptyp_desc with
-  | Ptyp_arrow (Asttypes.Nolabel, itype, otype) ->
+    ( "int -> string ",
+      [%type: int], [%type: string],
+      [%expr string_of_int] );
+
+    ( "string -> bool",
+      [%type: string], [%type: bool],
+      [%expr fun s ->
+          try
+            bool_of_string s
+          with
+            Failure _ -> failwith "madcast: string -> bool"] );
+
+    ( "string -> char",
+      [%type: string], [%type: char],
+      [%expr fun s ->
+          if String.length s = 1 then
+            s.[0]
+          else
+            failwith "madcast: string -> char"] );
+
+    ( "string -> float",
+      [%type: string], [%type: float],
+      [%expr fun s ->
+          try
+            float_of_string s
+          with
+            Failure _ -> failwith "madcast: string -> float"] );
+
+    ( "string -> int",
+      [%type: string], [%type: int],
+      [%expr fun s ->
+          try
+            int_of_string s
+          with
+            Failure _ -> failwith "madcast: string -> int"] ) ]
+  |>
+    List.iter
+      (fun (name, itype, otype, expr) ->
+        let matcher (itype', otype') =
+          if equal_core_type itype itype' && equal_core_type otype otype'
+          then Some []
+          else None
+        in
+        let builder l =
+          assert (l = []);
+          expr
+        in
+        Rule.register { name ; matcher ; builder })
+
+(* =========================== [ Array and list ] =========================== *)
+
+let () =
+  let name = "'a array -> 'b array" in
+  let matcher = function
+    | [%type: [%t? itype] array], [%type: [%t? otype] array] -> Some [(itype, otype)]
+    | _ -> None
+  in
+  let builder premises =
+    assert (List.length premises = 1);
+    [%expr Array.map [%e List.hd premises]]
+  in
+  Rule.register { name ; matcher ; builder }
+
+let () =
+  let name = "'a array -> 'b list" in
+  let matcher = function
+    | [%type: [%t? itype] array], [%type: [%t? otype] list]  -> Some [(itype, otype)]
+    | _ -> None
+  in
+  let builder premises =
+    assert (List.length premises = 1);
+    [%expr fun a -> Array.to_list a |> List.map [%e List.hd premises]]
+  in
+  Rule.register { name ; matcher ; builder }
+
+let () =
+  let name = "'a list -> 'b array" in
+  let matcher = function
+    | [%type: [%t? itype] list], [%type: [%t? otype] array] -> Some [(itype, otype)]
+    | _ -> None
+  in
+  let builder premises =
+    assert (List.length premises = 1);
+    [%expr fun l -> List.map [%e List.hd premises] |> Array.of_list]
+  in
+  Rule.register { name ; matcher ; builder }
+
+let () =
+  let name = "'a list -> 'b list" in
+  let matcher = function
+    | [%type: [%t? itype] list], [%type: [%t? otype] list]  -> Some [(itype, otype)]
+    | _ -> None
+  in
+  let builder premises =
+    assert (List.length premises = 1);
+    [%expr List.map [%e List.hd premises]]
+  in
+  Rule.register { name ; matcher ; builder }
+
+(* =============================== [ Tuples ] =============================== *)
+
+let () =
+  let name = "<tuple> -> <tuple>" in
+  let matcher = function
+    | {ptyp_desc=Ptyp_tuple itypes} , {ptyp_desc=Ptyp_tuple otypes}
+         when List.length itypes = List.length otypes ->
+       Some (List.combine itypes otypes)
+    | _ -> None
+  in
+  let builder casters =
+    Exp.fun_
+      Nolabel None
+      (Pat.tuple
+         (List.mapi
+            (fun i _ ->
+              Pat.var
+                (mknoloc ("c"^(string_of_int i))))
+            casters))
+      (Exp.tuple
+         (List.mapi
+            (fun i caster ->
+              Exp.apply
+                caster
+                [Nolabel, Exp.ident (mknoloc (Lident ("c"^(string_of_int i))))])
+            casters))
+  in
+  Rule.register { name ; matcher ; builder }
+
+(* ================================ [ Main ] ================================ *)
+
+exception CannotCast
+
+let rec derive (itype, otype) : expression =
+  (* apply all rules to these types *)
+  Rule.fold
+    (fun rule casters ->
+      match rule.Rule.matcher (itype, otype) with
+      | None -> casters
+      | Some premises ->
+         try
+           rule.Rule.builder (List.map derive premises) :: casters
+         with
+           CannotCast -> casters)
+    []
+  |>
+    function (* check that only caster has been found *)
+    | [caster] -> caster
+    | _ -> raise CannotCast
+
+let core_type = function
+  | [%type: [%t? itype] -> [%t? otype]] ->
      (
        try
-         madcast itype otype
+         derive (itype, otype)
        with
-         CannotCast (itype, otype, reason) ->
-         Ppx_deriving.(raise_errorf "Cannot cast %s to %s: %s"
+         CannotCast ->
+         Ppx_deriving.(raise_errorf "Cannot cast %s to %s"
                          (string_of_core_type itype)
-                         (string_of_core_type otype)
-                         reason)
+                         (string_of_core_type otype))
      )
-  | _ ->
-     failwith "madcast's type must be an arrow from the input type to the output type"
+  | _ as t ->
+     Ppx_deriving.(raise_errorf "Expected an arrow type, got %s"
+                     (string_of_core_type t))
 
-(* Register the deriver "madcast" that only works on "core_type", that
-   is on inline statements [%madcast:] *)
 let () = Ppx_deriving.(register (create "madcast" ~core_type ()))
