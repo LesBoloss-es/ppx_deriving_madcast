@@ -14,10 +14,24 @@ let get_name rule = rule.name
 let match_ rule = rule.matcher
 let build rule = rule.builder
 
-let rules = Hashtbl.create 8
+module IMap = Map.Make(struct type t = int let compare = compare end)
+let rules : t list IMap.t ref = ref IMap.empty
 
 let register rule =
-  Hashtbl.add rules rule.name rule
+  rules :=
+    IMap.update
+      rule.priority
+      (function
+       | None -> Some [rule]
+       | Some rules -> Some (rule :: rules))
+      !rules
 
 let fold f =
-  Hashtbl.fold (fun _ rule x -> f rule x) rules
+  IMap.fold
+    (fun _ rules x ->
+      List.fold_left
+        (fun x rule ->
+          f rule x)
+        x
+        rules)
+    !rules
