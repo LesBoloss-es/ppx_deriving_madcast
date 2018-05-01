@@ -10,11 +10,11 @@ let rec derive (itype, otype) : expression =
   (* apply all rules to these types *)
   Rule.fold
     (fun rule casters ->
-      match rule.Rule.matcher (itype, otype) with
+      match Rule.match_ rule (itype, otype) with
       | None -> casters
       | Some premises ->
          try
-           rule.Rule.builder (List.map derive premises) :: casters
+           Rule.build rule (List.map derive premises) :: casters
          with
            CannotCast -> casters)
     []

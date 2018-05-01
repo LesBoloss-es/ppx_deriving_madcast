@@ -20,7 +20,7 @@ let () =
     assert (l = []);
     [%expr fun x -> x]
   in
-  Rule.(register { name ; matcher ; builder })
+  Rule.(register (make ~name ~matcher ~builder ()))
 
 (* ============================= [ Base types ] ============================= *)
 
@@ -119,7 +119,7 @@ let () =
           assert (l = []);
           expr
         in
-        Rule.register { name ; matcher ; builder })
+        Rule.(register (make ~name ~matcher ~builder ())))
 
 (* =========================== [ Array and list ] =========================== *)
 
@@ -133,7 +133,7 @@ let () =
     assert (List.length premises = 1);
     [%expr Array.map [%e List.hd premises]]
   in
-  Rule.register { name ; matcher ; builder }
+  Rule.(register (make ~name ~matcher ~builder ()))
 
 let () =
   let name = "'a array -> 'b list" in
@@ -145,7 +145,7 @@ let () =
     assert (List.length premises = 1);
     [%expr fun a -> Array.to_list a |> List.map [%e List.hd premises]]
   in
-  Rule.register { name ; matcher ; builder }
+  Rule.(register (make ~name ~matcher ~builder ()))
 
 let () =
   let name = "'a list -> 'b array" in
@@ -157,7 +157,7 @@ let () =
     assert (List.length premises = 1);
     [%expr fun l -> List.map [%e List.hd premises] |> Array.of_list]
   in
-  Rule.register { name ; matcher ; builder }
+  Rule.(register (make ~name ~matcher ~builder ()))
 
 let () =
   let name = "'a list -> 'b list" in
@@ -169,7 +169,7 @@ let () =
     assert (List.length premises = 1);
     [%expr List.map [%e List.hd premises]]
   in
-  Rule.register { name ; matcher ; builder }
+  Rule.(register (make ~name ~matcher ~builder ()))
 
 (* =============================== [ Tuples ] =============================== *)
 
@@ -198,4 +198,4 @@ let () =
                 [Nolabel, Exp.ident (mknoloc (Lident ("c"^(string_of_int i))))])
             casters))
   in
-  Rule.register { name ; matcher ; builder }
+  Rule.(register (make ~name ~matcher ~builder ()))
