@@ -20,7 +20,7 @@ let () =
     assert (l = []);
     [%expr fun x -> x]
   in
-  Rule.(register (make ~name ~matcher ~builder ()))
+  Rule.(register (make ~name ~priority:max_int ~matcher ~builder ()))
 
 (* ============================= [ Base types ] ============================= *)
 

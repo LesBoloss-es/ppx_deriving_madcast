@@ -3,12 +3,12 @@ open Parsetree
 
 type t =
   { name : string ;
-    (* priority : int ; *)
+    priority : int ;
     matcher : (core_type * core_type) -> (core_type * core_type) list option ;
     builder : expression list -> expression }
 
 let make ~name ?(priority=0) ~matcher ~builder () =
-  { name ; matcher ; builder }
+  { name ; priority ; matcher ; builder }
 
 let get_name rule = rule.name
 let match_ rule = rule.matcher
