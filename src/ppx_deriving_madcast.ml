@@ -4,35 +4,47 @@ open Parsetree
 (* import rules *)
 open Rules
 
-exception CannotCast
-
-let rec derive (itype, otype) : expression =
-  (* apply all rules to these types *)
+let rec reverse_possibles = function
+  (* changes a list of possibilities in possibilities of lists *)
+  | [] -> [[]]
+  | possible_heads :: tail_of_possibles ->
+     List.map
+       (fun possible_tail ->
+         List.map
+           (fun possible_head ->
+             possible_head :: possible_tail)
+           possible_heads)
+       (reverse_possibles tail_of_possibles)
+     |> List.flatten
+    
+let rec derive (itype, otype) : expression list =
   Rule.fold
-    (fun rule casters ->
+    (fun rule casts ->
       match Rule.match_ rule (itype, otype) with
-      | None -> casters
+      | None -> casts
       | Some premises ->
-         try
-           Rule.build rule (List.map derive premises) :: casters
-         with
-           CannotCast -> casters)
+         (
+           List.map derive premises
+           |> reverse_possibles
+           |> List.map
+                (fun premises ->
+                  Rule.build rule premises)
+         ) @ casts)
     []
-  |>
-    function (* check that only caster has been found *)
-    | [caster] -> caster
-    | _ -> raise CannotCast
 
 let core_type = function
   | [%type: [%t? itype] -> [%t? otype]] ->
      (
-       try
-         derive (itype, otype)
-       with
-         CannotCast ->
-         Ppx_deriving.(raise_errorf "Cannot cast %s to %s"
-                         (string_of_core_type itype)
-                         (string_of_core_type otype))
+       match derive (itype, otype) with
+       | [cast] -> cast
+       | [] ->
+          Ppx_deriving.(raise_errorf "No cast found for %s -> %s"
+                          (string_of_core_type itype)
+                          (string_of_core_type otype))
+       | _ ->
+          Ppx_deriving.(raise_errorf "Several casts found for %s -> %s"
+                          (string_of_core_type itype)
+                          (string_of_core_type otype))
      )
   | _ as t ->
      Ppx_deriving.(raise_errorf "Expected an arrow type, got %s"
