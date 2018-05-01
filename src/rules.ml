@@ -20,7 +20,7 @@ let () =
     assert (l = []);
     [%expr fun x -> x]
   in
-  Rule.(register (make ~name ~priority:max_int ~matcher ~builder ()))
+  Rule.(register (make ~name ~priority:min_int ~matcher ~builder ()))
 
 (* ============================= [ Base types ] ============================= *)
 
@@ -72,7 +72,7 @@ let () =
       [%type: int], [%type: float],
       [%expr float_of_int] );
 
-    ( "int -> string ",
+    ( "int -> string",
       [%type: int], [%type: string],
       [%expr string_of_int] );
 

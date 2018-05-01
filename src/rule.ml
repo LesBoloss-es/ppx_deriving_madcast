@@ -10,9 +10,9 @@ type t =
 let make ~name ?(priority=0) ~matcher ~builder () =
   { name ; priority ; matcher ; builder }
 
-let get_name rule = rule.name
+let name_ rule = rule.name
 let match_ rule = rule.matcher
-let build rule = rule.builder
+let build_ rule = rule.builder
 
 module IMap = Map.Make(struct type t = int let compare = compare end)
 let rules : t list IMap.t ref = ref IMap.empty
@@ -34,4 +34,10 @@ let fold f =
           f rule x)
         x
         rules)
+    !rules
+
+let fold_by_priority f =
+  IMap.fold
+    (fun _ rules x ->
+      f rules x)
     !rules
