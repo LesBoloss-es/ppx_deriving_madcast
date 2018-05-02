@@ -1,8 +1,16 @@
 (jbuild_version 1)
 
 (library
- ((name ppx_deriving_madcast)
-  (public_name ppx_deriving_madcast)
+ ((name madcast)
+  (public_name ppx_deriving_madcast.api)
   (libraries (ppx_deriving.api))
   (preprocess (action (run ppxfind -legacy ppx_tools.metaquot --as-pp ${<})))
+  (modules (Rule Rules Parsetree_utils Madcast))))
+
+(library
+ ((name ppx)
+  (public_name ppx_deriving_madcast)
+  (libraries (ppx_deriving_madcast.api ppx_deriving.api))
+  (preprocess (action (run ppxfind -legacy ppx_tools.metaquot --as-pp ${<})))
+  (modules Ppx)
   (kind ppx_deriver)))
