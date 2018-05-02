@@ -1,17 +1,55 @@
-#+TITLE: ppx_deriving_madcast
+#+TITLE: [%madcast:]
 #+STARTUP: indent
 
-* Philosophy
-The convertion should never lose information. That is guaranteed by
-the fact that
+/madcast/ is a library deriving cast functions based on their types.
 
-: [%madcast: t2 -> t1] [%madcast: t1 -> t2] (x : t1)
+* Examples
+** Base types
+For base types, /madcast/ uses the functions defined in the standard
+library:
+: [%madcast: int -> string]
+will simply be replaced by =string_of_int=
 
-must always return =x=, except when =[%madcast: t1 -> t2]= (that is, the
-first cast applied to =x=) raises an exception.
+** Parsing positions
+Say you have to parse a line of coordinates /x1/, /y1/, /x2/, /y2/, etc. and
+you want an array of pairs of integers:
+: let points =
+:   read_line ()
+:   |> String.split_on_char ' '
+:   |> [%madcast: string list -> (int * int) array]
+
+** MySQL API
+/madcast/ is primarily meant to be used in conjunction with low level
+API. Here is an example with MySQL:
+: let () =
+:   let result = Mysql.exec conn "SELECT id, name, surname FROM person WHERE username=johndoe'" in
+:   let row = Mysql.fetch result
+:             |> [%madcast: string option array option -> (int * string * string option) option]
+:   in match row with
+:   | None -> Format.eprintf "Could not find user `johndoe`@."
+:   | Some (id, name, None) -> Format.eprintf "%s (%d) has no surname.@." name id
+:   | Some (id, name, Some surname) -> Format.eprintf "%s (%d) has %s for surname.@." name id surname
 
 * Installation
+** Using OPAM
+: opam install ppx_deriving_madcast
+
 ** Dependencies
-   - opam-installer
-   - ppxfind
-   ... and others
+In order to build:
+- =jbuilder=
+- =ppx_deriving=
+- =ppxfind=
+- =ppx_tools=
+
+In order to install:
+- =opam-installer=
+
+* API
+/madcast/ also provides an API in case you only want the function that
+takes two =Parsetree.core_type= and derives a =Parsetree.expression= that
+casts the first =core_type= into the second one.
+
+This API is in the package =ppx_deriving_madcast.api=.
+
+* License
+/madcast/ is distributed under the LGPL License.

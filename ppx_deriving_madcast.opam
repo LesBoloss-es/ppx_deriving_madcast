@@ -1,7 +1,7 @@
 opam-version: "1.2"
 maintainer: "Niols <niols@niols.fr>"
-authors: [ "Niols <niols@niols.fr>" ]
-license: "GPL3"
+authors: [ "Niols <niols@niols.fr>" "Kerl <kerl@wkerl.me>" ]
+license: "LGPL3"
 homepage: "https://github.com/Niols/ppx_deriving_madcast"
 doc: "http://github.com/Niols/ppx_deriving_madcast"
 bug-reports: "https://github.com/Niols/ppx_deriving_madcast/issues"
