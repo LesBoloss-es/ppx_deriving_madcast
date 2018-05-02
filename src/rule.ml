@@ -20,12 +20,10 @@ let rules : t list IMap.t ref = ref IMap.empty
 
 let register rule =
   rules :=
-    IMap.update
-      rule.priority
-      (function
-       | None -> Some [rule]
-       | Some rules -> Some (rule :: rules))
-      !rules
+    IMap.add rule.priority (
+      try rule :: IMap.find rule.priority !rules
+      with Not_found -> [rule]
+    ) !rules
 
 let fold f =
   IMap.fold
