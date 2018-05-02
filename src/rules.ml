@@ -7,6 +7,9 @@ open Location
 
 open Parsetree_utils
 
+let mkpatvar i = Pat.var (mknoloc ("c"^(string_of_int i)))
+let mkident i = Exp.ident (mknoloc (Lident ("c"^(string_of_int i))))
+
 (* ============================== [ Identity ] ============================== *)
 
 let () =
@@ -16,8 +19,8 @@ let () =
     then Some []
     else None
   in
-  let builder l =
-    assert (l = []);
+  let builder casts =
+    assert (casts = []);
     [%expr fun x -> x]
   in
   Rule.(register (make ~name ~priority:min_int ~matcher ~builder ()))
@@ -115,11 +118,57 @@ let () =
           then Some []
           else None
         in
-        let builder l =
-          assert (l = []);
+        let builder casts =
+          assert (casts = []);
           expr
         in
         Rule.(register (make ~name ~matcher ~builder ())))
+
+(* ============================== [ Options ] =============================== *)
+
+let () =
+  let name = "'a option -> 'b option" in
+  let matcher = function
+    | [%type: [%t? itype] option], [%type: [%t? otype] option] ->
+       Some [itype, otype]
+    | _ -> None
+  in
+  let builder casts =
+    assert (List.length casts = 1);
+    [%expr function
+        | None -> None
+        | Some x -> Some ([%e List.hd casts] x)]
+  in
+  Rule.(register (make ~name ~matcher ~builder ()))
+
+let () =
+  let name = "'a -> 'b option" in
+  let matcher = function
+    | itype, [%type: [%t? otype] option] ->
+       Some [itype, otype]
+    | _ -> None
+  in
+  let builder casts =
+    assert (List.length casts = 1);
+    [%expr fun x -> Some ([%e List.hd casts] x)]
+  in
+  (* slightly lower priority that 'a option -> 'b option *)
+  Rule.(register (make ~name ~priority:1 ~matcher ~builder ()))
+
+let () =
+  let name = "'a option -> 'b" in
+  let matcher = function
+    | [%type: [%t? itype] option], otype ->
+       Some [itype, otype]
+    | _ -> None
+  in
+  let builder casts =
+    assert (List.length casts = 1);
+    [%expr function
+        | None -> failwith "madcast: 'a option -> 'b"
+        | Some x -> [%e List.hd casts] x]
+  in
+  Rule.(register (make ~name ~priority:1 ~matcher ~builder ()))
 
 (* =============================== [ Arrays ] =============================== *)
 
@@ -174,18 +223,11 @@ let () =
     | _ -> None
   in
   let builder casts =
+    (* fun (c0,...ck) -> [|cast0 c0; ... castk ck|] *)
     Exp.fun_
       Nolabel None
-      (Pat.tuple
-         (List.mapi
-            (fun i _ ->
-              Pat.var (mknoloc ("c"^(string_of_int i))))
-            casts))
-      (Exp.array
-         (List.mapi
-            (fun i cast ->
-              Exp.apply cast [Nolabel, Exp.ident (mknoloc (Lident ("c"^(string_of_int i))))])
-            casts))
+      (Pat.tuple (List.mapi (fun i _ -> mkpatvar i) casts))
+      (Exp.array (List.mapi (fun i cast -> Exp.apply cast [Nolabel, mkident i]) casts))
   in
   Rule.(register (make ~name ~matcher ~builder ()))
 
@@ -197,24 +239,52 @@ let () =
     | _ -> None
   in
   let builder casts =
+    (* function
+       | [|c0;...ck|] -> (cast0 c0, ... castk ck)
+       | _ -> failwith ... *)
     Exp.function_
       [ Exp.case
-          (Pat.array
-             (List.mapi
-                (fun i _ ->
-                  Pat.var (mknoloc ("c"^(string_of_int i))))
-                casts))
-          (Exp.tuple
-             (List.mapi
-                (fun i cast ->
-                  Exp.apply cast [Nolabel, Exp.ident (mknoloc (Lident ("c"^(string_of_int i))))])
-                casts)) ;
+          (Pat.array (List.mapi (fun i _ -> mkpatvar i) casts))
+          (Exp.tuple (List.mapi (fun i cast -> Exp.apply cast [Nolabel, mkident i]) casts)) ;
         Exp.case
           (Pat.any ())
           [%expr failwith "madcast: 'a array -> <tuple>"] ]
   in
   Rule.(register (make ~name ~matcher ~builder ()))
-  
+
+let () =
+  let name = "<tuple> array -> 'a array" in
+  let matcher = function
+    | [%type: [%t? {ptyp_desc=Ptyp_tuple itypes}] array], [%type: [%t? otype] array] ->
+       Some [Typ.tuple itypes, [%type: [%t otype] array]]
+    | _ -> None
+  in
+  let builder casts =
+    assert (List.length casts = 1);
+    [%expr fun a ->
+        Array.map [%e List.hd casts] a
+        |> Array.to_list
+        |> Array.concat]
+  in
+  Rule.(register (make ~name ~priority:100 ~matcher ~builder ())) (* low priority *)
+
+(* let () =
+ *   let name = "'a array -> <tuple> array" in
+ *   let matcher = function
+ *     | [%type: [%t? itype] array], [%type: [%t? {ptyp_desc=Ptyp_tuple otypes}] array] ->
+ *        Some [[%type: [%t itype] array], Typ.tuple otypes]
+ *     | _ -> None
+ *   in
+ *   let builder casts =
+ *     assert (List.length casts = 1);
+ *     [%expr fun a ->
+ *         let chop a l =
+ *           if Array.length a % l <> 0 then
+ *             failwith "madcast: 'a array -> <tuple> array";
+ *           Array.init (Array.length a / l)
+ *             (fun i -> Array.sub a (i*l) l)
+ *         in *)
+
 (* =============================== [ Lists ] ================================ *)
 (* using the rules for arrays *)
 
@@ -243,7 +313,7 @@ let () =
     [%expr fun x -> [%e List.hd casts] x |> Array.to_list]
   in
   Rule.(register (make ~name ~priority:(-101) ~matcher ~builder ())) (* high priority *)
-  
+
 (* =============================== [ Tuples ] =============================== *)
 
 let () =
@@ -254,21 +324,11 @@ let () =
        Some (List.combine itypes otypes)
     | _ -> None
   in
-  let builder casters =
+  let builder casts =
+    (* fun (c0,...ck) -> (cast0 c0, ... castk ck) *)
     Exp.fun_
       Nolabel None
-      (Pat.tuple
-         (List.mapi
-            (fun i _ ->
-              Pat.var
-                (mknoloc ("c"^(string_of_int i))))
-            casters))
-      (Exp.tuple
-         (List.mapi
-            (fun i caster ->
-              Exp.apply
-                caster
-                [Nolabel, Exp.ident (mknoloc (Lident ("c"^(string_of_int i))))])
-            casters))
+      (Pat.tuple (List.mapi (fun i _ -> mkpatvar i) casts))
+      (Exp.tuple (List.mapi (fun i cast -> Exp.apply cast [Nolabel, mkident i]) casts))
   in
   Rule.(register (make ~name ~matcher ~builder ()))
