@@ -11,6 +11,7 @@ let make ~name ?(priority=0) ~matcher ~builder () =
   { name ; priority ; matcher ; builder }
 
 let name_ rule = rule.name
+let priority_ rule = rule.priority
 let match_ rule = rule.matcher
 let build_ rule = rule.builder
 

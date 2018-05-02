@@ -17,6 +17,11 @@ let () =
   |> (fun a -> Format.printf "%s@." a.(1))
   
 let () =
+  [1; 2]
+  |> [%madcast: int list -> (int * string)]
+  |> (fun (i, s) -> Format.printf "(%d, %s)@." i s)
+
+let () =
   assert (
       ([%madcast: (string * int) -> (int * string)]
          ([%madcast: (int * string) -> (string * int)] (1, "2")))

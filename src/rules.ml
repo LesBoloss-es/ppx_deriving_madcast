@@ -121,56 +121,129 @@ let () =
         in
         Rule.(register (make ~name ~matcher ~builder ())))
 
-(* =========================== [ Array and list ] =========================== *)
+(* =============================== [ Arrays ] =============================== *)
 
 let () =
   let name = "'a array -> 'b array" in
   let matcher = function
-    | [%type: [%t? itype] array], [%type: [%t? otype] array] -> Some [(itype, otype)]
+    | [%type: [%t? itype] array], [%type: [%t? otype] array] ->
+       Some [itype, otype]
     | _ -> None
   in
-  let builder premises =
-    assert (List.length premises = 1);
-    [%expr Array.map [%e List.hd premises]]
+  let builder casts =
+    assert (List.length casts = 1);
+    [%expr Array.map [%e List.hd casts]]
   in
   Rule.(register (make ~name ~matcher ~builder ()))
 
 let () =
-  let name = "'a array -> 'b list" in
+  let name = "'a -> 'b array" in
   let matcher = function
-    | [%type: [%t? itype] array], [%type: [%t? otype] list]  -> Some [(itype, otype)]
+    | itype, [%type: [%t? otype] array] ->
+       Some [itype, otype]
     | _ -> None
   in
-  let builder premises =
-    assert (List.length premises = 1);
-    [%expr fun a -> Array.to_list a |> List.map [%e List.hd premises]]
+  let builder casts =
+    assert (List.length casts = 1);
+    [%expr fun x -> [|[%e List.hd casts] x|]]
+  in
+  Rule.(register (make ~name ~priority:100 ~matcher ~builder ())) (* low priority *)
+
+let () =
+  let name = "'a array -> 'b" in
+  let matcher = function
+    | [%type: [%t? itype] array], otype ->
+       Some [itype, otype]
+    | _ -> None
+  in
+  let builder casts =
+    assert (List.length casts = 1);
+    [%expr fun a ->
+        if Array.length a = 1 then
+          [%e List.hd casts] a.(0)
+        else
+          failwith "madcast: 'a array -> 'b"]
+  in
+  Rule.(register (make ~name ~priority:101 ~matcher ~builder ())) (* low priority *)
+
+let () =
+  let name = "<tuple> -> 'b array" in
+  let matcher = function
+    | {ptyp_desc=Ptyp_tuple itypes}, [%type: [%t? otype] array] ->
+       Some (List.map (fun itype -> (itype, otype)) itypes)
+    | _ -> None
+  in
+  let builder casts =
+    Exp.fun_
+      Nolabel None
+      (Pat.tuple
+         (List.mapi
+            (fun i _ ->
+              Pat.var (mknoloc ("c"^(string_of_int i))))
+            casts))
+      (Exp.array
+         (List.mapi
+            (fun i cast ->
+              Exp.apply cast [Nolabel, Exp.ident (mknoloc (Lident ("c"^(string_of_int i))))])
+            casts))
   in
   Rule.(register (make ~name ~matcher ~builder ()))
 
 let () =
-  let name = "'a list -> 'b array" in
+  let name = "'a array -> <tuple>" in
   let matcher = function
-    | [%type: [%t? itype] list], [%type: [%t? otype] array] -> Some [(itype, otype)]
+    | [%type: [%t? itype] array], {ptyp_desc=Ptyp_tuple otypes} ->
+       Some (List.map (fun otype -> (itype, otype)) otypes)
     | _ -> None
   in
-  let builder premises =
-    assert (List.length premises = 1);
-    [%expr fun l -> List.map [%e List.hd premises] |> Array.of_list]
+  let builder casts =
+    Exp.function_
+      [ Exp.case
+          (Pat.array
+             (List.mapi
+                (fun i _ ->
+                  Pat.var (mknoloc ("c"^(string_of_int i))))
+                casts))
+          (Exp.tuple
+             (List.mapi
+                (fun i cast ->
+                  Exp.apply cast [Nolabel, Exp.ident (mknoloc (Lident ("c"^(string_of_int i))))])
+                casts)) ;
+        Exp.case
+          (Pat.any ())
+          [%expr failwith "madcast: 'a array -> <tuple>"] ]
   in
   Rule.(register (make ~name ~matcher ~builder ()))
+  
+(* =============================== [ Lists ] ================================ *)
+(* using the rules for arrays *)
 
 let () =
-  let name = "'a list -> 'b list" in
+  let name = "'a list -> 'a array -> 'b" in
   let matcher = function
-    | [%type: [%t? itype] list], [%type: [%t? otype] list]  -> Some [(itype, otype)]
+    | [%type: [%t? itype] list], otype ->
+       Some [[%type: [%t itype] array], otype]
     | _ -> None
   in
-  let builder premises =
-    assert (List.length premises = 1);
-    [%expr List.map [%e List.hd premises]]
+  let builder casts =
+    assert (List.length casts = 1);
+    [%expr fun l -> Array.of_list l |> [%e List.hd casts]]
   in
-  Rule.(register (make ~name ~matcher ~builder ()))
+  Rule.(register (make ~name ~priority:(-100) ~matcher ~builder ())) (* high priority *)
 
+let () =
+  let name = "'a -> 'b array -> 'b list" in
+  let matcher = function
+    | itype, [%type: [%t? otype] list] ->
+       Some [itype, [%type: [%t otype] array]]
+    | _ -> None
+  in
+  let builder casts =
+    assert (List.length casts = 1);
+    [%expr fun x -> [%e List.hd casts] x |> Array.to_list]
+  in
+  Rule.(register (make ~name ~priority:(-101) ~matcher ~builder ())) (* high priority *)
+  
 (* =============================== [ Tuples ] =============================== *)
 
 let () =
