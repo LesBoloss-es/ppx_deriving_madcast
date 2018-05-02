@@ -1,3 +1,4 @@
+
 let () =
   let one = [%madcast: string -> int] "1" in
   Testing.assert_eq 1 one
@@ -32,5 +33,34 @@ let () =
   |> [%madcast: (int * string) -> (string * int)]
   |> [%madcast: (string * int) -> (int * string)]
   |> Testing.assert_eq value
+
+let () =
+  Some 1
+  |> [%madcast: int option -> int]
+  |> Testing.assert_eq 1
+
+let () =
+  Some "2"
+  |> [%madcast: string option -> int]
+  |> Testing.assert_eq 2
+
+let () =
+  [| "1"; "Pierre"; "7" |]
+  |> [%madcast: string array -> (int * string * int)]
+  |> Testing.assert_eq (1, "Pierre", 7)
+
+let () =
+  [| Some "3"; Some "Paul"; Some "7" |]
+  |> [%madcast: string option array -> (int * string * string option)]
+  |> Testing.assert_eq (3, "Paul", Some "7")
+
+let () =
+  [| Some [| Some "1" ; Some "Pierre" ; Some "7" |] ;
+     Some [| Some "3" ; Some "Paul" ; None |] ;
+     None |]
+  |> [%madcast: string option array option array -> (int * string * string option) option list]
+  |> Testing.assert_eq [ Some (1, "Pierre", Some "7") ;
+                         Some (3, "Paul", None) ;
+                         None ]
 
 let () = Testing.finish ()
