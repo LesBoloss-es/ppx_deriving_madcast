@@ -268,22 +268,29 @@ let () =
   in
   Rule.(register (make ~name ~priority:100 ~matcher ~builder ())) (* low priority *)
 
-(* let () =
- *   let name = "'a array -> <tuple> array" in
- *   let matcher = function
- *     | [%type: [%t? itype] array], [%type: [%t? {ptyp_desc=Ptyp_tuple otypes}] array] ->
- *        Some [[%type: [%t itype] array], Typ.tuple otypes]
- *     | _ -> None
- *   in
- *   let builder casts =
- *     assert (List.length casts = 1);
- *     [%expr fun a ->
- *         let chop a l =
- *           if Array.length a % l <> 0 then
- *             failwith "madcast: 'a array -> <tuple> array";
- *           Array.init (Array.length a / l)
- *             (fun i -> Array.sub a (i*l) l)
- *         in *)
+let () =
+  let name = "'a array -> <tuple> array" in
+  let matcher = function
+    | [%type: [%t? itype] array], [%type: [%t? {ptyp_desc=Ptyp_tuple otypes}] array] ->
+       Some (List.map (fun otype -> (itype, otype)) otypes)
+    | _ -> None
+  in
+  let builder casts =
+    let l = List.length casts in
+    let exp_int n = Exp.constant (Const.int n) in
+    [%expr fun a ->
+        if Array.length a % [%e exp_int l] <> 0 then
+          failwith "madcast: 'a array -> <tuple> array"
+        else
+          Array.init (Array.length a / [%e exp_int l])
+            (fun i ->
+              [%e Exp.tuple
+                  (List.mapi
+                     (fun j cast ->
+                       [%expr [%e cast] a.([%e exp_int j] + i * [%e exp_int l])])
+                     casts)])]
+  in
+  Rule.(register (make ~name ~priority:101 ~matcher ~builder ())) (* low priority *)
 
 (* =============================== [ Lists ] ================================ *)
 (* using the rules for arrays *)
