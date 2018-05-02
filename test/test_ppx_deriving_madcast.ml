@@ -1,29 +1,41 @@
+let () =
+  let one = [%madcast: string -> int] "1" in
+  Testing.assert_eq 1 one
 
-let () = Format.printf "%d@." ([%madcast: string -> int] "1")
-let () = Format.printf "%s@." ([%madcast: int -> string] 2)
+let () =
+  let two = [%madcast: int -> string] 2 in
+  Testing.assert_eq "2" two
 
 let () =
   let (a, b) = [%madcast: (string * int) -> (int * string)] ("1", 2) in
-  Format.printf "(%d,%s)@." a b
+  Testing.assert_eq (1, "2") (a, b)
 
 let () =
-  [|1; 2|]
-  |> [%madcast: int array -> int array]
-  |> (fun a -> Format.printf "%d@." a.(0))
+  let arr =
+    [|1; 2|] |> [%madcast: int array -> int array]
+  in
+  (* TODO. add a Testing.array_eq function *)
+  Testing.assert_eq 1 arr.(0) ;
+  Testing.assert_eq 2 arr.(1)
 
 let () =
-  [|1; 2|]
-  |> [%madcast: int array -> string array]
-  |> (fun a -> Format.printf "%s@." a.(1))
-  
+  let arr =
+    [|1; 2|] |> [%madcast: int array -> string array]
+  in
+  (* TODO. add a Testing.array_eq function *)
+  Testing.assert_eq "1" arr.(0) ;
+  Testing.assert_eq "2" arr.(1)
+
 let () =
   [1; 2]
   |> [%madcast: int list -> (int * string)]
-  |> (fun (i, s) -> Format.printf "(%d, %s)@." i s)
+  |> Testing.assert_eq (1, "2")
 
 let () =
-  assert (
-      ([%madcast: (string * int) -> (int * string)]
-         ([%madcast: (int * string) -> (string * int)] (1, "2")))
-      = (1, "2")
-    )
+  let value = (1, "2") in
+  value
+  |> [%madcast: (int * string) -> (string * int)]
+  |> [%madcast: (string * int) -> (int * string)]
+  |> Testing.assert_eq value
+
+let () = Testing.finish ()
