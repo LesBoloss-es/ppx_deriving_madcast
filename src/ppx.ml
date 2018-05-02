@@ -2,7 +2,7 @@
 let core_type = function
   | [%type: [%t? itype] -> [%t? otype]] ->
      (
-       match Madcast.derive (itype, otype) with
+       match Madcast.derive itype otype with
        | [cast] -> cast
        | [] ->
           Ppx_deriving.(raise_errorf "No cast found for %s -> %s"
@@ -16,5 +16,5 @@ let core_type = function
   | _ as t ->
      Ppx_deriving.(raise_errorf "Expected an arrow type, got %s"
                      (string_of_core_type t))
-    
+
 let () = Ppx_deriving.(register (create "madcast" ~core_type ()))

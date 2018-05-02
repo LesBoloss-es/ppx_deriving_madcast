@@ -43,3 +43,9 @@ let rec derive (itype, otype) : expression list =
             something already, so we let that and do nothing. *)
          casts)
     []
+
+let derive itype otype =
+  derive (itype, otype)
+  |> List.map
+       (fun expr ->
+         [%expr ([%e expr] : [%t itype] -> [%t otype])])
