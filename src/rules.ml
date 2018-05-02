@@ -332,3 +332,6 @@ let () =
       (Exp.tuple (List.mapi (fun i cast -> Exp.apply cast [Nolabel, mkident i]) casts))
   in
   Rule.(register (make ~name ~matcher ~builder ()))
+
+(* seriously, this is so dumb *)
+let init () = ()
