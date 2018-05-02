@@ -1,5 +1,8 @@
 opam-version: "1.2"
 
+name: "ppx_deriving_madcast"
+version: "0.1"
+
 maintainer: "Niols <niols@niols.fr>"
 authors: [ "Niols <niols@niols.fr>" "Kerl <kerl@wkerl.me>" ]
 license: "LGPL3"
@@ -10,15 +13,10 @@ dev-repo: "git://github.com/Niols/ppx_deriving_madcast.git"
 
 tags: [ "syntax" ]
 
-build: [[ "make" ]]
-build-test: [[ "make test" ]]
-depends: [
-  "ppx_deriving"
-  "ppx_tools"
-  "ppxfind"
-  "jbuilder"
-  "opam-installer"
-]
+build: ["make"]
+install: ["make install"]
+remove: ["make uninstall"]
 
-version: "0.1"
-name: "ppx_deriving_madcast"
+build-test: ["make test"]
+
+depends: [ "ppx_deriving" "ppx_tools" "ppxfind" "jbuilder" "opam-installer" ]

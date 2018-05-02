@@ -12,7 +12,7 @@ NAME_VERSION := $(shell opam query ppx_deriving_madcast.opam --name-version)
 ARCHIVE      := $(shell opam query ppx_deriving_madcast.opam --archive)
 
 release:
-	git tag -a v$(VERSION)
+	git tag -a v$(VERSION) -m 'Version $(VERSION)'
 	git push origin v$(VERSION)
 	opam publish prepare $(NAME_VERSION) $(ARCHIVE)
 	opam publish submit $(NAME_VERSION)
