@@ -11,20 +11,15 @@ let () =
   Testing.assert_eq (1, "2") (a, b)
 
 let () =
-  let arr =
-    [|1; 2|] |> [%madcast: int array -> int array]
-  in
-  (* TODO. add a Testing.array_eq function *)
-  Testing.assert_eq 1 arr.(0) ;
-  Testing.assert_eq 2 arr.(1)
+  let arr = [|1; 2|] in
+  arr
+  |> [%madcast: int array -> int array]
+  |> Testing.assert_array_eq arr
 
 let () =
-  let arr =
-    [|1; 2|] |> [%madcast: int array -> string array]
-  in
-  (* TODO. add a Testing.array_eq function *)
-  Testing.assert_eq "1" arr.(0) ;
-  Testing.assert_eq "2" arr.(1)
+  [|1; 2|]
+  |> [%madcast: int array -> string array]
+  |> Testing.assert_array_eq [|"1"; "2"|]
 
 let () =
   [1; 2]

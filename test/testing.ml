@@ -33,6 +33,20 @@ let assert_eq expected actual =
     add_exn e ;
     error ()
 
+let assert_array_eq expected actual =
+  try
+    assert (Array.length expected = Array.length actual) ;
+    Array.iter2 (fun x y -> assert (x = y)) expected actual ;
+    success ()
+  with
+  | Assert_failure _ as e ->
+    add_exn e ;
+    fail ()
+  | e ->
+    add_exn e ;
+    error ()
+
+
 
 let finish () =
   stats.fails + stats.errors + stats.successes
