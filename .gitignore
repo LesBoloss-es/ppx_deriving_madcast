@@ -7,3 +7,6 @@ _build
 ## Emacs
 *~
 *#
+
+## Project-specific
+ppx_deriving_madcast.[0-9]*

@@ -35,14 +35,18 @@ API. Here is an example with MySQL:
 : opam install ppx_deriving_madcast
 
 ** Dependencies
-In order to build:
+To build:
 - =jbuilder=
 - =ppx_deriving=
 - =ppxfind=
 - =ppx_tools=
 
-In order to install:
+To install:
 - =opam-installer=
+
+To release:
+- =opam-query=
+- =opam-publish=
 
 * API
 /madcast/ also provides an API in case you only want the function that
