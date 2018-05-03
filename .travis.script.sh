@@ -23,6 +23,6 @@ fi
 ## Run tests
 if [ -n "$RUN_TESTS" ]; then
     fold_start tests 'Run tests...'
-    make tests
+    make test
     fold_end tests
 fi
