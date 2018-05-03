@@ -7,28 +7,34 @@
 ** Base types
 For base types, /madcast/ uses the functions defined in the standard
 library:
-: [%madcast: int -> string]
+#+BEGIN_SRC ocaml
+[%madcast: int -> string]
+#+END_SRC
 will simply be replaced by =string_of_int=
 
 ** Parsing positions
 Say you have to parse a line of coordinates /x1/, /y1/, /x2/, /y2/, etc. and
 you want an array of pairs of integers:
-: let points =
-:   read_line ()
-:   |> String.split_on_char ' '
-:   |> [%madcast: string list -> (int * int) array]
+#+BEGIN_SRC ocaml
+let points =
+  read_line ()
+  |> String.split_on_char ' '
+  |> [%madcast: string list -> (int * int) array]
+#+END_SRC
 
 ** MySQL API
 /madcast/ is primarily meant to be used in conjunction with low level
 API. Here is an example with MySQL:
-: let () =
-:   let result = Mysql.exec conn "SELECT id, name, surname FROM person WHERE username=johndoe'" in
-:   let row = Mysql.fetch result
-:             |> [%madcast: string option array option -> (int * string * string option) option]
-:   in match row with
-:   | None -> Format.eprintf "Could not find user `johndoe`@."
-:   | Some (id, name, None) -> Format.eprintf "%s (%d) has no surname.@." name id
-:   | Some (id, name, Some surname) -> Format.eprintf "%s (%d) has %s for surname.@." name id surname
+#+BEGIN_SRC ocaml
+let () =
+  let result = Mysql.exec conn "SELECT id, name, surname FROM person WHERE username='johndoe'" in
+  let row = Mysql.fetch result
+            |> [%madcast: string option array option -> (int * string * string option) option]
+  in match row with
+  | None -> Format.eprintf "Could not find user `johndoe`@."
+  | Some (id, name, None) -> Format.eprintf "%s (%d) has no surname.@." name id
+  | Some (id, name, Some surname) -> Format.eprintf "%s (%d) has %s for surname.@." name id surname
+#+END_SRC
 
 * Installation
 ** Using OPAM
