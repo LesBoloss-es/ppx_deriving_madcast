@@ -1,6 +1,9 @@
 build:
 	jbuilder build @install
 
+doc:
+	jbuilder build @doc
+
 install:
 	jbuilder install
 
@@ -21,4 +24,4 @@ clean:
 	jbuilder clean
 	rm -f ppx_deriving_madcast.[0-9]*
 
-.PHONY: build install test clean
+.PHONY: build doc install uninstall release test clean
