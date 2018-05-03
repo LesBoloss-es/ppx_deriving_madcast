@@ -196,7 +196,7 @@ let () =
     assert (List.length casts = 1);
     [%expr fun x -> [|[%e List.hd casts] x|]]
   in
-  Rule.(register (make ~name ~priority:100 ~matcher ~builder ())) (* low priority *)
+  Rule.(register (make ~name ~priority:200 ~matcher ~builder ())) (* low priority *)
 
 let () =
   let name = "'a array -> 'b" in
@@ -213,7 +213,7 @@ let () =
         else
           failwith "madcast: 'a array -> 'b"]
   in
-  Rule.(register (make ~name ~priority:101 ~matcher ~builder ())) (* low priority *)
+  Rule.(register (make ~name ~priority:201 ~matcher ~builder ())) (* low priority *)
 
 let () =
   let name = "<tuple> -> 'b array" in
@@ -279,7 +279,7 @@ let () =
     let l = List.length casts in
     let exp_int n = Exp.constant (Const.int n) in
     [%expr fun a ->
-        if Array.length a % [%e exp_int l] <> 0 then
+        if Array.length a mod [%e exp_int l] <> 0 then
           failwith "madcast: 'a array -> <tuple> array"
         else
           Array.init (Array.length a / [%e exp_int l])
