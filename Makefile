@@ -16,12 +16,13 @@ release:
 	opam publish prepare $(shell opam query *.opam --name-version) $(shell opam query *.opam --archive)
 	opam publish submit $(shell opam query *.opam --name-version)
 
-test:
-	jbuilder build test/test_ppx_deriving_madcast.exe
-	_build/default/test/test_ppx_deriving_madcast.exe
+test: build
+	jbuilder build .ppx/ppx_deriving_madcast/ppx.exe
+	make -C test
 
 clean:
 	jbuilder clean
 	rm -f ppx_deriving_madcast.[0-9]*
+	make -C test clean
 
 .PHONY: build doc install uninstall release test clean
