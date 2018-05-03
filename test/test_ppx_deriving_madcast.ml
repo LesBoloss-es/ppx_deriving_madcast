@@ -63,4 +63,9 @@ let () =
                          Some (3, "Paul", None) ;
                          None ]
 
+let () =
+  [| "1"; "2"; "3"; "4"; "5"; "6" |]
+  |> [%madcast: string array -> (int * int) list]
+  |> Testing.assert_eq [ (1,2); (3,4); (5,6) ]
+
 let () = Testing.finish ()
