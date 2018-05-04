@@ -76,6 +76,7 @@ echo "Ran $total tests"
 
 if [ "$successes" -eq "$total" ]; then
   echo "All tests passed successfully! \033[32m✓\033[0m"
+  exit 0
 else
   echo "\- $successes tests passed successfully"
 fi
@@ -91,3 +92,5 @@ fi
 if [ "$false_positives" -ne 0 ]; then
   echo "\- there are $false_positives false positives"
 fi
+
+exit 1
