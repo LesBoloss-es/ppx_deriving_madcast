@@ -78,19 +78,19 @@ if [ "$successes" -eq "$total" ]; then
   echo "All tests passed successfully! \033[32m✓\033[0m"
   exit 0
 else
-  echo "\- $successes tests passed successfully"
+  echo " - $successes tests passed successfully"
 fi
 
 if [ "$compile_errs" -ne 0 ]; then
-  echo "\- there are $compile_errs compile errors"
+  echo " - there are $compile_errs compile errors"
 fi
 
 if [ "$runtime_errs" -ne 0 ]; then
-  echo "\- there are $runtime_errs runtime errors"
+  echo " - there are $runtime_errs runtime errors"
 fi
 
 if [ "$false_positives" -ne 0 ]; then
-  echo "\- there are $false_positives false positives"
+  echo " - there are $false_positives false positives"
 fi
 
 exit 1
