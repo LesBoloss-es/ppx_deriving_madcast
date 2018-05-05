@@ -1,4 +1,8 @@
-(jbuild_version 1)
+
+(rule
+ ((deps (parsetree_utils.cppo.ml))
+  (targets (parsetree_utils.ml))
+  (action (run ${bin:cppo} -V OCAML:${ocaml_version} ${<} -o ${@}))))
 
 (library
  ((name madcast)
