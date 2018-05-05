@@ -1,6 +1,7 @@
 
 open Parsetree
-
+open Ast_helper
+   
 (* seriously, this is so dumb *)
 let () = Rules.init ()
 
@@ -45,7 +46,20 @@ let rec derive (itype, otype) : expression list =
     []
 
 let derive itype otype =
-  derive (itype, otype)
-  |> List.map
-       (fun expr ->
-         [%expr ([%e expr] : [%t itype] -> [%t otype])])
+  (* We ask derive to derive expressions for itype -> otype. We then
+     annotate them with that type where type variables are universally
+     quantified. Since this can syntactically only happen in a let, we
+     return something like:
+
+         let cast : [vars]. [itype -> otype] = [expr] in cast 
+   *)
+  let vars = Parsetree_utils.variables_of_core_type [%type: [%t itype] -> [%t otype]] in
+  derive (itype, otype) |>
+    List.map (fun expr ->
+        Exp.let_ Nonrecursive
+          [Vb.mk
+             (Pat.constraint_
+                (Pat.var (Location.mknoloc "cast"))
+                (Typ.poly (List.map Location.mknoloc vars) [%type: [%t itype] -> [%t otype]]))
+             expr]
+          (Exp.ident (Location.mknoloc (Longident.Lident "cast"))))
