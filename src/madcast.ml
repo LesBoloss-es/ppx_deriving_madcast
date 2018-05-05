@@ -1,7 +1,4 @@
 
-open Parsetree
-open Ast_helper
-   
 (* seriously, this is so dumb *)
 let () = Rules.init ()
 
@@ -18,7 +15,7 @@ let rec reverse_possibles = function
        (reverse_possibles tail_of_possibles)
      |> List.flatten
 
-let rec derive (itype, otype) : expression list =
+let rec derive (itype, otype) : Parsetree.expression list =
   Rule.fold_by_priority
     (fun rules -> function
       | [] ->
@@ -51,15 +48,8 @@ let derive itype otype =
      quantified. Since this can syntactically only happen in a let, we
      return something like:
 
-         let cast : [vars]. [itype -> otype] = [expr] in cast 
+         let cast : [vars]. [itype -> otype] = [expr] in cast
    *)
-  let vars = Parsetree_utils.variables_of_core_type [%type: [%t itype] -> [%t otype]] in
-  derive (itype, otype) |>
-    List.map (fun expr ->
-        Exp.let_ Nonrecursive
-          [Vb.mk
-             (Pat.constraint_
-                (Pat.var (Location.mknoloc "cast"))
-                (Typ.poly (List.map Location.mknoloc vars) [%type: [%t itype] -> [%t otype]]))
-             expr]
-          (Exp.ident (Location.mknoloc (Longident.Lident "cast"))))
+  let t = Parsetree_utils.universal_closure_of_core_type [%type: [%t itype] -> [%t otype]] in
+  derive (itype, otype)
+  |> List.map (fun expr -> [%expr let cast : [%t t] = [%e expr] in cast])
