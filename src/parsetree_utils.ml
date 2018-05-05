@@ -1,5 +1,6 @@
 
 open Parsetree
+open Ast_helper
 
 let rec equal_core_type t t' =
   equal_core_type_desc t.ptyp_desc t'.ptyp_desc
@@ -39,3 +40,6 @@ let variables_of_core_type t =
   in
   let set = variables_of_core_type SSet.empty t in
   SSet.fold (fun x acc -> x :: acc) set []
+
+let universal_closure_of_core_type t =
+  Typ.poly (List.map Location.mknoloc (variables_of_core_type t)) t
