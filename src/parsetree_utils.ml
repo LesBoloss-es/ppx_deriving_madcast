@@ -22,11 +22,13 @@ and equal_core_type_desc t t' =
 
   | _ -> false
 
-let variables_of_core_type =
+module SSet = Set.Make(struct type t = string let compare = compare end)
+
+let variables_of_core_type t =
   let rec variables_of_core_type acc t =
     match t.ptyp_desc with
     | Ptyp_any -> acc
-    | Ptyp_var x -> x :: acc
+    | Ptyp_var x -> SSet.add x acc
 
     | Ptyp_arrow (_, t, t') -> variables_of_core_type (variables_of_core_type acc t) t'
 
@@ -35,4 +37,5 @@ let variables_of_core_type =
 
     | _ -> assert false
   in
-  variables_of_core_type []
+  let set = variables_of_core_type SSet.empty t in
+  SSet.fold (fun x acc -> x :: acc) set []
