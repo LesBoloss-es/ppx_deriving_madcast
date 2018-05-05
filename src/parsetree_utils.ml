@@ -21,3 +21,18 @@ and equal_core_type_desc t t' =
   | ( Ptyp_extension _       , Ptyp_extension _          ) -> assert false
 
   | _ -> false
+
+let variables_of_core_type =
+  let rec variables_of_core_type acc t =
+    match t.ptyp_desc with
+    | Ptyp_any -> acc
+    | Ptyp_var x -> x :: acc
+
+    | Ptyp_arrow (_, t, t') -> variables_of_core_type (variables_of_core_type acc t) t'
+
+    | Ptyp_tuple tl
+    | Ptyp_constr (_, tl) -> List.fold_left variables_of_core_type acc tl
+
+    | _ -> assert false
+  in
+  variables_of_core_type []
