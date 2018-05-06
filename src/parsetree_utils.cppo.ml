@@ -23,7 +23,7 @@ and equal_core_type_desc t t' =
 
   | _ -> false
 
-module SSet = Set.Make(struct type t = string let compare = compare end)
+module SSet = Set.Make(String)
 
 let variables_of_core_type t =
   let rec variables_of_core_type acc t =
