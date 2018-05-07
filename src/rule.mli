@@ -3,7 +3,7 @@ open Parsetree
 
 type t
 
-val make : name:string -> ?priority:int ->
+val make : name:string ->
            matcher:((core_type * core_type) -> (core_type * core_type) list option) ->
            builder:(expression list -> expression) ->
            unit -> t
@@ -12,6 +12,5 @@ val make : name:string -> ?priority:int ->
    matcher function and a builder function. *)
 
 val name_ : t -> string
-val priority_ : t -> int
 val match_ : t -> (core_type * core_type) -> (core_type * core_type) list option
 val build_ : t -> expression list -> expression
