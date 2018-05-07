@@ -8,6 +8,9 @@ type cell =
     mutable higher : cell list ;
     mutable level : int }
 
+let make_cell ?(level=(-1)) ?(higher=[]) rule =
+  { rule ; higher ; level }
+
 let identity =
   let name = "'a -> 'a" in
   let matcher (itype, otype) =
@@ -19,9 +22,7 @@ let identity =
     assert (casts = []);
     [%expr fun x -> x]
   in
-  { rule = Rule.make ~name ~matcher ~builder () ;
-    higher = [] ;
-    level = 0 }
+  make_cell (Rule.make ~name ~matcher ~builder ())
 
 module SMap = Map.Make(String)
 
@@ -34,10 +35,7 @@ let lookup name =
   (SMap.find name !cells).rule
 
 let register ?(applies_before=[]) ?(applies_after=[]) rule =
-  let cell =
-    { rule ; level = -1 ;
-      higher = List.map lookup_cell applies_before }
-  in
+  let cell = make_cell ~higher:(List.map lookup_cell applies_before) rule in
   cells := SMap.add (Rule.name_ rule) cell !cells;
   identity.higher <- cell :: identity.higher;
   List.iter
@@ -47,12 +45,14 @@ let register ?(applies_before=[]) ?(applies_after=[]) rule =
     applies_after
 
 let fill_levels () =
-  let rec fill_level i cell =
+  let rec fill_level i lower cell =
+    assert (not (List.mem cell lower));
     if cell.level < i then
       cell.level <- i;
-    List.iter (fill_level (i+1)) cell.higher
+    List.iter (fill_level (i+1) (cell :: lower)) cell.higher
   in
-  fill_level 0 identity
+  SMap.iter (fun _ cell -> cell.level <- -1) !cells;
+  fill_level 0 [] identity
 
 let fold_by_priority f x =
   let rec fold x level = function
