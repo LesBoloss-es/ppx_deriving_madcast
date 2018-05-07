@@ -15,8 +15,3 @@ val name_ : t -> string
 val priority_ : t -> int
 val match_ : t -> (core_type * core_type) -> (core_type * core_type) list option
 val build_ : t -> expression list -> expression
-
-val register : t -> unit
-
-val fold : (t -> 'a -> 'a) -> 'a -> 'a val fold_by_priority : (t list
-                        -> 'a -> 'a) -> 'a -> 'a

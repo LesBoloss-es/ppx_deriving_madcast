@@ -23,7 +23,7 @@ let () =
     assert (casts = []);
     [%expr fun x -> x]
   in
-  Rule.(register (make ~name ~priority:min_int ~matcher ~builder ()))
+  RuleSet.register (Rule.make ~name ~priority:min_int ~matcher ~builder ())
 
 (* ============================= [ Base types ] ============================= *)
 
@@ -122,7 +122,7 @@ let () =
           assert (casts = []);
           expr
         in
-        Rule.(register (make ~name ~matcher ~builder ())))
+        RuleSet.register (Rule.make ~name ~matcher ~builder ()))
 
 (* ============================== [ Options ] =============================== *)
 
@@ -139,7 +139,7 @@ let () =
         | None -> None
         | Some x -> Some ([%e List.hd casts] x)]
   in
-  Rule.(register (make ~name ~matcher ~builder ()))
+  RuleSet.register (Rule.make ~name ~matcher ~builder ())
 
 let () =
   let name = "'a -> 'b option" in
@@ -153,7 +153,7 @@ let () =
     [%expr fun x -> Some ([%e List.hd casts] x)]
   in
   (* slightly lower priority that 'a option -> 'b option *)
-  Rule.(register (make ~name ~priority:1 ~matcher ~builder ()))
+  RuleSet.register (Rule.make ~name ~priority:1 ~matcher ~builder ())
 
 let () =
   let name = "'a option -> 'b" in
@@ -168,7 +168,7 @@ let () =
         | None -> failwith "madcast: 'a option -> 'b"
         | Some x -> [%e List.hd casts] x]
   in
-  Rule.(register (make ~name ~priority:1 ~matcher ~builder ()))
+  RuleSet.register (Rule.make ~name ~priority:1 ~matcher ~builder ())
 
 (* =============================== [ Arrays ] =============================== *)
 
@@ -183,7 +183,7 @@ let () =
     assert (List.length casts = 1);
     [%expr Array.map [%e List.hd casts]]
   in
-  Rule.(register (make ~name ~matcher ~builder ()))
+  RuleSet.register (Rule.make ~name ~matcher ~builder ())
 
 let () =
   let name = "'a -> 'b array" in
@@ -196,7 +196,7 @@ let () =
     assert (List.length casts = 1);
     [%expr fun x -> [|[%e List.hd casts] x|]]
   in
-  Rule.(register (make ~name ~priority:200 ~matcher ~builder ())) (* low priority *)
+  RuleSet.register (Rule.make ~name ~priority:200 ~matcher ~builder ()) (* low priority *)
 
 let () =
   let name = "'a array -> 'b" in
@@ -213,7 +213,7 @@ let () =
         else
           failwith "madcast: 'a array -> 'b"]
   in
-  Rule.(register (make ~name ~priority:201 ~matcher ~builder ())) (* low priority *)
+  RuleSet.register (Rule.make ~name ~priority:201 ~matcher ~builder ()) (* low priority *)
 
 let () =
   let name = "<tuple> -> 'b array" in
@@ -229,7 +229,7 @@ let () =
       (Pat.tuple (List.mapi (fun i _ -> mkpatvar i) casts))
       (Exp.array (List.mapi (fun i cast -> Exp.apply cast [Nolabel, mkident i]) casts))
   in
-  Rule.(register (make ~name ~matcher ~builder ()))
+  RuleSet.register (Rule.make ~name ~matcher ~builder ())
 
 let () =
   let name = "'a array -> <tuple>" in
@@ -250,7 +250,7 @@ let () =
           (Pat.any ())
           [%expr failwith "madcast: 'a array -> <tuple>"] ]
   in
-  Rule.(register (make ~name ~matcher ~builder ()))
+  RuleSet.register (Rule.make ~name ~matcher ~builder ())
 
 let () =
   let name = "<tuple> array -> 'a array" in
@@ -266,7 +266,7 @@ let () =
         |> Array.to_list
         |> Array.concat]
   in
-  Rule.(register (make ~name ~priority:100 ~matcher ~builder ())) (* low priority *)
+  RuleSet.register (Rule.make ~name ~priority:100 ~matcher ~builder ()) (* low priority *)
 
 let () =
   let name = "'a array -> <tuple> array" in
@@ -290,7 +290,7 @@ let () =
                        [%expr [%e cast] a.([%e exp_int j] + i * [%e exp_int l])])
                      casts)])]
   in
-  Rule.(register (make ~name ~priority:101 ~matcher ~builder ())) (* low priority *)
+  RuleSet.register (Rule.make ~name ~priority:101 ~matcher ~builder ()) (* low priority *)
 
 (* =============================== [ Lists ] ================================ *)
 (* using the rules for arrays *)
@@ -306,7 +306,7 @@ let () =
     assert (List.length casts = 1);
     [%expr fun l -> Array.of_list l |> [%e List.hd casts]]
   in
-  Rule.(register (make ~name ~priority:(-100) ~matcher ~builder ())) (* high priority *)
+  RuleSet.register (Rule.make ~name ~priority:(-100) ~matcher ~builder ()) (* high priority *)
 
 let () =
   let name = "'a -> 'b array -> 'b list" in
@@ -319,7 +319,7 @@ let () =
     assert (List.length casts = 1);
     [%expr fun x -> [%e List.hd casts] x |> Array.to_list]
   in
-  Rule.(register (make ~name ~priority:(-101) ~matcher ~builder ())) (* high priority *)
+  RuleSet.register (Rule.make ~name ~priority:(-101) ~matcher ~builder ()) (* high priority *)
 
 (* =============================== [ Tuples ] =============================== *)
 
@@ -338,7 +338,7 @@ let () =
       (Pat.tuple (List.mapi (fun i _ -> mkpatvar i) casts))
       (Exp.tuple (List.mapi (fun i cast -> Exp.apply cast [Nolabel, mkident i]) casts))
   in
-  Rule.(register (make ~name ~matcher ~builder ()))
+  RuleSet.register (Rule.make ~name ~matcher ~builder ())
 
 (* seriously, this is so dumb *)
 let init () = ()

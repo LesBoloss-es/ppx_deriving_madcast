@@ -16,7 +16,7 @@ let rec reverse_possibles = function
      |> List.flatten
 
 let rec derive (itype, otype) : Parsetree.expression list =
-  Rule.fold_by_priority
+  RuleSet.fold_by_priority
     (fun rules -> function
       | [] ->
          (* Empty means that the stronger priorities have found
