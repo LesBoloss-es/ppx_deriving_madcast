@@ -9,7 +9,7 @@
   (public_name ppx_deriving_madcast.api)
   (libraries (ppx_deriving.api))
   (preprocess (action (run ppxfind -legacy ppx_tools.metaquot --as-pp ${<})))
-  (modules (Parsetree_utils Rule RuleSet Madcast))))
+  (modules (Parsetree_utils ExtList Rule RuleSet Madcast))))
 
 (library
  ((name ppx)

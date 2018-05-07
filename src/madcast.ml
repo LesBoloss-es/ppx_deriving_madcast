@@ -336,6 +336,94 @@ let () =
   in
   RuleSet.register (Rule.make ~name ~matcher ~builder ())
 
+(* ============================= [ Functions ] ============================== *)
+
+let () =
+  let name = "('a -> 'b) -> ('c -> 'd)" in
+  let matcher = function
+    | [%type: [%t? iitype] -> [%t? iotype]], [%type: [%t? oitype] -> [%t? ootype]] ->
+       Some [(oitype, iitype); (iotype, ootype)]
+    | _ -> None
+  in
+  let builder = function
+    | [icast; ocast] ->
+       [%expr fun f x -> x |> [%e icast] |> f |> [%e ocast]]
+    | _ -> assert false
+  in
+  RuleSet.register (Rule.make ~name ~matcher ~builder ())
+
+let () =
+  let name = "currying" in
+  let matcher (itype, otype) =
+    match itype with
+    | [%type: [%t? {ptyp_desc=Ptyp_tuple iitypes}] -> [%t? iotype]] ->
+       (
+         let rec matcher = function
+           | ([], ootype) -> [(iotype, ootype)] (* this is the right order *)
+           | (iitype :: iitypes, [%type: [%t? oitype] -> [%t? ootype]]) ->
+              (oitype, iitype) :: matcher (iitypes, ootype)
+           | _ -> failwith "matcher"
+         in
+         try Some (matcher (iitypes, otype))
+         with Failure _ -> None
+       )
+    | _ -> None
+  in
+  let builder casts =
+    let ocast = ExtList.ft casts in
+    let icasts = ExtList.bd casts in
+    [%expr fun f ->
+        [%e ExtList.foldi_right
+              (* imbricated functions *)
+              (fun i _ exp ->
+                Exp.fun_ Nolabel None (mkpatvar i) exp)
+              icasts
+              (
+                (* the body of the function *)
+                Exp.apply ocast [Nolabel,
+                  Exp.apply [%expr f] [Nolabel,
+                    Exp.tuple (
+                      List.mapi
+                        (fun i icast ->
+                          Exp.apply icast [Nolabel, mkident i])
+                        icasts
+                  )]]
+              )]]
+  in
+  RuleSet.register
+    ~applies_after:[RuleSet.lookup "('a -> 'b) -> ('c -> 'd)"]
+    (Rule.make ~name ~matcher ~builder ())
+
+let () =
+  let name = "uncurrying" in
+  let matcher (itype, otype) =
+    match otype with
+    | [%type: [%t? {ptyp_desc=Ptyp_tuple oitypes}] -> [%t? ootype]] ->
+       (
+         let rec matcher = function
+           | (iotype, []) -> [(iotype, ootype)] (* this is the right order *)
+           | ([%type: [%t? iitype] -> [%t? iotype]], oitype :: ootypes) ->
+              (oitype, iitype) :: matcher (iotype, ootypes)
+           | _ -> failwith "matcher"
+         in
+         try Some (matcher (itype, oitypes))
+         with Failure _ -> None
+       )
+    | _ -> None
+  in
+  let builder casts =
+    let ocast = ExtList.ft casts in
+    let icasts = ExtList.bd casts in
+    [%expr fun f ->
+        [%e Exp.fun_ Nolabel None
+              (Pat.tuple (List.mapi (fun i _ -> mkpatvar i) icasts))
+              (Exp.apply ocast [Nolabel, (Exp.apply [%expr f]
+                 (List.mapi (fun i icast -> (Nolabel, Exp.apply icast [Nolabel, mkident i])) icasts))])]]
+  in
+  RuleSet.register
+    ~applies_after:[RuleSet.lookup "('a -> 'b) -> ('c -> 'd)"]
+    (Rule.make ~name ~matcher ~builder ())
+
 
 
 
