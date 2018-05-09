@@ -22,6 +22,6 @@ let rec bd = function
   | h ::q -> h :: bd q
 
 let rec ft = function
-  | [] -> failwith "tl"
+  | [] -> failwith "ft"
   | [e] -> e
   | _ :: q -> ft q
