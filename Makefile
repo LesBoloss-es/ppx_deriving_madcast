@@ -18,6 +18,7 @@ release:
 	&& git tag -a "v$${VERSION}" -m "Version $${VERSION}" \
 	&& git push origin "v$${VERSION}" \
 	&& opam publish prepare "$${NAME_VERSION}" "$${ARCHIVE}" \
+	&& cp descr "$${NAME_VERSION}/descr" \
 	&& opam publish submit "$${NAME_VERSION}"
 
 test: build
@@ -26,7 +27,7 @@ test: build
 
 clean:
 	jbuilder clean
-	rm -f ppx_deriving_madcast.[0-9]*
+	rm -rf ppx_deriving_madcast.[0-9.]*
 	make -C test clean
 
 .PHONY: build doc install uninstall release test clean
