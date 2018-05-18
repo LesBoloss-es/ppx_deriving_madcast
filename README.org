@@ -55,13 +55,13 @@ $ sh test/show.sh 'string array -> (int * int) array'
                ((fun s ->
                    try int_of_string s
                    with | Failure _ -> failwith "madcast: string -> int")
-                  (a.(1 + (i * 2)))))) 
+                  (a.(1 + (i * 2))))))
 #+END_SRC
 
 * Installation
 ** Using OPAM
+=ppx_deriving_madcast= is now available on OPAM:
 : opam install ppx_deriving_madcast
-
 ** Dependencies
 To build:
 - =jbuilder=
