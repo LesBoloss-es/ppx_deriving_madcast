@@ -14,9 +14,9 @@ dev-repo: "git://github.com/Niols/ppx_deriving_madcast.git"
 tags: [ "syntax" ]
 
 build: [ make ]
-install: [ make install ]
-remove: [ make uninstall ]
+install: [ make "install" ]
+remove: [ make "uninstall" ]
 
-build-test: [ make test ]
+build-test: [ make "test" ]
 
 depends: [ "ppx_deriving" "ppx_tools" "ppxfind" "jbuilder" "opam-installer" ]
