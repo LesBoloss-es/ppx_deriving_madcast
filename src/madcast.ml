@@ -480,4 +480,4 @@ let derive itype otype =
    *)
   let t = Parsetree_utils.universal_closure_of_core_type [%type: [%t itype] -> [%t otype]] in
   derive (itype, otype)
-  |> List.map (fun expr -> [%expr let cast : [%t t] = [%e expr] in cast])
+  |> List.map (fun expr -> [%expr let (cast : [%t t]) = [%e expr] in cast])
