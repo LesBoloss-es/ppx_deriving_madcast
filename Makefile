@@ -11,10 +11,14 @@ uninstall:
 	jbuilder uninstall
 
 release:
-	git tag -a v$(shell opam query *.opam --version) -m 'Version $(shell opam query *.opam --version)'
-	git push origin v$(shell opam query *.opam --version)
-	opam publish prepare $(shell opam query *.opam --name-version) $(shell opam query *.opam --archive)
-	opam publish submit $(shell opam query *.opam --name-version)
+	printf 'Publishing...\n' \
+	&& VERSION=$$(opam query *.opam --version) \
+	&& NAME_VERSION=$$(opam query *.opam --name-version) \
+	&& ARCHIVE=$(opam query *.opam --archive) \
+	&& git tag -a "v$${VERSION}" -m "Version $${VERSION}" \
+	&& git push origin "v$${VERSION}" \
+	&& opam publish prepare "$${NAME_VERSION}" "$${ARCHIVE}" \
+	&& opam publish submit "$${NAME_VERSION}"
 
 test: build
 	jbuilder build .ppx/ppx_deriving_madcast/ppx.exe
