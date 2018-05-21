@@ -11,15 +11,7 @@ uninstall:
 	jbuilder uninstall
 
 release:
-	printf 'Publishing...\n' \
-	&& VERSION=$$(opam query *.opam --version) \
-	&& NAME_VERSION=$$(opam query *.opam --name-version) \
-	&& ARCHIVE=$(opam query *.opam --archive) \
-	&& git tag -a "v$${VERSION}" -m "Version $${VERSION}" \
-	&& git push origin "v$${VERSION}" \
-	&& opam publish prepare "$${NAME_VERSION}" "$${ARCHIVE}" \
-	&& cp descr "$${NAME_VERSION}/descr" \
-	&& opam publish submit "$${NAME_VERSION}"
+	sh release.sh
 
 test: build
 	jbuilder build .ppx/ppx_deriving_madcast/ppx.exe
