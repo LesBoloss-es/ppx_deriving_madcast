@@ -14,11 +14,12 @@ dev-repo: "git://github.com/Niols/ppx_deriving_madcast.git"
 
 available: [ ocaml-version >= "4.04" ]
 depends: [
-    "ppx_deriving"
-    "ppx_tools"
-    "ppxfind"
-    "jbuilder" {build}
+  "ppx_deriving"
+  "ppx_tools"
+  "ppxfind" {build}
+  "jbuilder" {build}
+  "ocamlfind" {test}
 ]
 
-build: [ make ]
+build: [ "jbuilder" "build" "-p" name "-j" jobs ]
 build-test: [ make "test" ]
