@@ -1,0 +1,7 @@
+
+(alias
+ ((name runtest)
+  (action (run ./test.sh))
+  (deps ((file ../.ppx/ppx_deriving_madcast/ppx.exe)
+         (files_recursively_in positive)
+         (files_recursively_in negative)))))

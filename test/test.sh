@@ -1,6 +1,6 @@
 #!/bin/sh
-
-set -eu
+set -euC
+cd "$(dirname "$0")"
 
 
 compile_errs=0
@@ -25,7 +25,7 @@ succeed () {
 }
 
 compile () {
-  ../_build/default/.ppx/ppx_deriving_madcast/ppx.exe \
+  ../.ppx/ppx_deriving_madcast/ppx.exe \
     "$1" \
     -o "${1%.ml}.pp.ml" \
   && ocamlfind ocamlc "${1%.ml}.pp.ml" -o "${1%.ml}.exe"
@@ -75,7 +75,7 @@ total=$((successes + compile_errs + runtime_errs + false_positives))
 echo "Ran $total tests"
 
 if [ "$successes" -eq "$total" ]; then
-  echo "All tests passed successfully! \033[32m✓\033[0m"
+  echo "All tests passed successfully!"
   exit 0
 else
   echo " - $successes tests passed successfully"

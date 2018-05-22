@@ -10,12 +10,10 @@ install:
 uninstall:
 	jbuilder uninstall
 
-test: build
-	jbuilder build .ppx/ppx_deriving_madcast/ppx.exe
-	make -C test
+test:
+	jbuilder runtest
 
 clean:
 	jbuilder clean
-	make -C test clean
 
 .PHONY: build doc install uninstall test clean
