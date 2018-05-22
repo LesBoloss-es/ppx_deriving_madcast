@@ -470,14 +470,52 @@ let rec derive (itype, otype) : Parsetree.expression list =
          casts)
     []
 
+
+
+(* ============================== [ Frontend ] ============================== *)
+
+exception NoCastFound
+exception SeveralCastFound
+
 let derive itype otype =
-  (* We ask derive to derive expressions for itype -> otype. We then
+  match derive (itype, otype) with
+  | [cast] -> cast
+  | [] -> raise NoCastFound
+  | _ -> raise SeveralCastFound
+
+
+let split_arrow = function
+  | [%type: [%t? itype] -> [%t? otype]] -> itype, otype
+  | _ -> invalid_arg "split_arrow"
+
+
+let annotate expr ty =
+  [%expr let (cast : [%t ty]) = [%e expr] in cast]
+
+
+let madcast ty =
+  (* We ask derive to derive expressions for ty = itype -> otype. We then
      annotate them with that type where type variables are universally
      quantified. Since this can syntactically only happen in a let, we
      return something like:
 
          let cast : [vars]. [itype -> otype] = [expr] in cast
-   *)
-  let t = Parsetree_utils.universal_closure_of_core_type [%type: [%t itype] -> [%t otype]] in
-  derive (itype, otype)
-  |> List.map (fun expr -> [%expr let (cast : [%t t]) = [%e expr] in cast])
+  *)
+  let loc = ty.Parsetree.ptyp_loc in
+  try
+    let itype, otype = split_arrow ty in
+    let cast = derive itype otype in
+    annotate cast (Parsetree_utils.universal_closure_of_core_type ty)
+  with
+  | Invalid_argument msg when msg = "split_arrow" ->
+      Ppx_deriving.(raise_errorf ~loc
+                      "Expected an arrow type, got %s"
+                      (string_of_core_type ty))
+  | NoCastFound ->
+    Ppx_deriving.(raise_errorf ~loc
+                    "No cast found for %s"
+                    (string_of_core_type ty))
+  | SeveralCastFound ->
+    Ppx_deriving.(raise_errorf ~loc
+                    "Several casts found for %s"
+                    (string_of_core_type ty))
