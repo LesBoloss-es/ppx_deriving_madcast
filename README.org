@@ -39,23 +39,25 @@ let () =
 ** Try it yourself!
 If you are able to build the project and the tests (=make && make
 test=), then you can see by yourself the code generated for a given
-type with =test/show.sh=:
+type with =show.exe=:
 #+BEGIN_SRC ocaml
-$ sh test/show.sh 'string array -> (int * int) array'
-    fun a ->
-      if ((Array.length a) mod 2) <> 0
-      then failwith "madcast: 'a array -> <tuple> array"
-      else
-        Array.init ((Array.length a) / 2)
-          (fun i ->
-             (((fun s ->
-                  try int_of_string s
-                  with | Failure _ -> failwith "madcast: string -> int")
-                 (a.(0 + (i * 2)))),
-               ((fun s ->
-                   try int_of_string s
-                   with | Failure _ -> failwith "madcast: string -> int")
-                  (a.(1 + (i * 2))))))
+$ jbuilder build test/show.exe
+$ ./_build/default/test/show.exe
+madcast % string array -> (int * int) array
+fun a  ->
+  if ((Array.length a) mod 2) <> 0
+  then failwith "madcast: 'a array -> <tuple> array"
+  else
+    Array.init ((Array.length a) / 2)
+      (fun i  ->
+         (((fun s  ->
+              try int_of_string s
+              with | Failure _ -> failwith "madcast: string -> int")
+             (a.(0 + (i * 2)))),
+           ((fun s  ->
+               try int_of_string s
+               with | Failure _ -> failwith "madcast: string -> int")
+              (a.(1 + (i * 2))))))
 #+END_SRC
 
 * Installation
