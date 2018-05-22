@@ -22,4 +22,4 @@ depends: [
 ]
 
 build: [ "jbuilder" "build" "-p" name "-j" jobs ]
-build-test: [ make "test" ]
+build-test: [ "jbuilder" "runtest" ]
