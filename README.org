@@ -1,4 +1,4 @@
-#+TITLE: [%madcast:] [[https://travis-ci.org/Niols/ppx_deriving_madcast][https://travis-ci.org/Niols/ppx_deriving_madcast.svg?branch=master]]
+#+TITLE: [%madcast:] [[https://travis-ci.org/LesBoloss-es/ppx_deriving_madcast][https://travis-ci.org/LesBoloss-es/ppx_deriving_madcast.svg?branch=master]]
 #+STARTUP: indent
 
 /madcast/ is a library deriving cast functions based on their types.
