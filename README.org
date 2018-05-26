@@ -42,8 +42,7 @@ test=), then you can see by yourself the code generated for a given
 type with =show.exe=:
 #+BEGIN_SRC ocaml
 $ jbuilder build test/show.exe
-$ ./_build/default/test/show.exe
-madcast % string array -> (int * int) array
+$ jbuilder exec test/show.exe 'string array -> (int * int) array'
 fun a  ->
   if ((Array.length a) mod 2) <> 0
   then failwith "madcast: 'a array -> <tuple> array"

@@ -1,9 +1,9 @@
-let compile () =
-  Format.printf "madcast %% @?" ;
-  let line = input_line stdin in
+(** Compile a type to a caster **********************************************)
+
+let compile typ =
   try
     let itype, otype =
-      Lexing.from_string line
+      Lexing.from_string typ
       |> Parse.core_type
       |> Madcast.split_arrow
     in
@@ -17,13 +17,29 @@ let compile () =
   | exn -> Location.report_exception Format.std_formatter exn
 
 
-let rec loop () =
-  compile () ;
-  loop ()
+(** Parse command line arguments ********************************************)
 
+let usage = Format.sprintf "usage: %s <ocaml arrow type>" Sys.argv.(0)
+
+let parse_cmd_line () =
+  let typ = ref None in
+  let nb_args = ref 0 in
+  let set s =
+    incr nb_args ;
+    match !nb_args with
+    | 1 -> typ := Some s
+    | _ -> raise (Arg.Bad "Too many arguments")
+  in
+  Arg.parse [] set usage ;
+  match !typ with
+  | None ->
+    Arg.usage [] usage ;
+    exit 1
+  | Some typ -> typ
+
+
+
+(** Run show.ml *************************************************************)
 
 let () =
-  try loop ()
-  with End_of_file ->
-    Format.printf "@." ;
-    exit 0
+  parse_cmd_line () |> compile
