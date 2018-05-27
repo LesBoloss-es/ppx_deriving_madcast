@@ -443,7 +443,7 @@ let rec reverse_possibles = function
        (reverse_possibles tail_of_possibles)
      |> List.flatten
 
-let rec derive (itype, otype) : Parsetree.expression list =
+let rec find_caster (itype, otype) : Parsetree.expression list =
   RuleSet.fold_by_priority
     (fun rules -> function
       | [] ->
@@ -456,7 +456,7 @@ let rec derive (itype, otype) : Parsetree.expression list =
              | None -> (* the rule found nothing *) casts
              | Some premises ->
                 (
-                  List.map derive premises
+                  List.map find_caster premises
                   |> reverse_possibles
                   |> List.map
                        (fun premises ->
@@ -477,8 +477,8 @@ let rec derive (itype, otype) : Parsetree.expression list =
 exception NoCastFound
 exception SeveralCastFound
 
-let derive itype otype =
-  match derive (itype, otype) with
+let find_caster itype otype =
+  match find_caster (itype, otype) with
   | [cast] -> cast
   | [] -> raise NoCastFound
   | _ -> raise SeveralCastFound
@@ -493,8 +493,8 @@ let annotate expr ty =
   [%expr let (cast : [%t ty]) = [%e expr] in cast]
 
 
-let madcast ty =
-  (* We ask derive to derive expressions for ty = itype -> otype. We then
+let derive ty =
+  (* We ask [find_caster] to derive expressions for ty = itype -> otype. We then
      annotate them with that type where type variables are universally
      quantified. Since this can syntactically only happen in a let, we
      return something like:
@@ -504,7 +504,7 @@ let madcast ty =
   let loc = ty.Parsetree.ptyp_loc in
   try
     let itype, otype = split_arrow ty in
-    let cast = derive itype otype in
+    let cast = find_caster itype otype in
     annotate cast (Parsetree_utils.universal_closure_of_core_type ty)
   with
   | Invalid_argument msg when msg = "split_arrow" ->

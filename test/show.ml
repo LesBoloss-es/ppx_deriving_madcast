@@ -7,7 +7,7 @@ let compile typ =
       |> Parse.core_type
       |> Madcast.split_arrow
     in
-    let cast = Madcast.derive itype otype in
+    let cast = Madcast.find_caster itype otype in
     Format.printf "%a@." Pprintast.expression cast
   with
   | Madcast.NoCastFound -> Format.printf "no cast found!@."
