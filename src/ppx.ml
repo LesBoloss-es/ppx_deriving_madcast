@@ -1,2 +1,2 @@
 
-let () = Ppx_deriving.(register (create "madcast" ~core_type:Madcast.madcast ()))
+let () = Ppx_deriving.(register (create "madcast" ~core_type:Madcast.derive ()))

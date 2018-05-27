@@ -7,7 +7,7 @@ exception SeveralCastFound
 (** Exception raised when more than cast can be derived for two types *)
 
 
-val derive : core_type -> core_type -> expression
+val find_caster : core_type -> core_type -> expression
 (** Given an input type [itype] and an output type [otype], returns a
     casting function of type [itype -> otype].
     Raise [NoCastFound] if no casting function can be derived
@@ -21,6 +21,6 @@ val annotate : expression -> core_type -> expression
 (** [annotate expr ty] returns a let expression of the form
     [let (e : ty) = expr in e] *)
 
-val madcast : core_type -> expression
+val derive : core_type -> expression
 (** [madcast ty] returns an annotated casting function of type [ty].
     [ty] must be an arrow type. *)
