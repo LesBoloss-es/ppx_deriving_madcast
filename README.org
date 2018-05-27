@@ -37,11 +37,8 @@ let () =
 #+END_SRC
 
 ** Try it yourself!
-If you are able to build the project and the tests (=make && make
-test=), then you can see by yourself the code generated for a given
-type with =show.exe=:
+You can see by yourself the code generated for a given type with =show.exe=:
 #+BEGIN_SRC ocaml
-$ jbuilder build test/show.exe
 $ jbuilder exec test/show.exe 'string array -> (int * int) array'
 fun a  ->
   if ((Array.length a) mod 2) <> 0
