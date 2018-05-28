@@ -475,13 +475,13 @@ let rec find_caster (itype, otype) : Parsetree.expression list =
 (* ============================== [ Frontend ] ============================== *)
 
 exception NoCastFound
-exception SeveralCastFound
+exception SeveralCastsFound
 
 let find_caster itype otype =
   match find_caster (itype, otype) with
   | [cast] -> cast
   | [] -> raise NoCastFound
-  | _ -> raise SeveralCastFound
+  | _ -> raise SeveralCastsFound
 
 
 let split_arrow = function
@@ -515,7 +515,7 @@ let derive ty =
     Ppx_deriving.(raise_errorf ~loc
                     "No cast found for %s"
                     (string_of_core_type ty))
-  | SeveralCastFound ->
+  | SeveralCastsFound ->
     Ppx_deriving.(raise_errorf ~loc
                     "Several casts found for %s"
                     (string_of_core_type ty))

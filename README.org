@@ -11,7 +11,6 @@ library:
 [%madcast: int -> string]
 #+END_SRC
 will simply be replaced by =string_of_int=
-
 ** Parsing positions
 Say you have to parse a line of coordinates /x1/, /y1/, /x2/, /y2/, etc. and
 you want an array of pairs of integers:
@@ -21,7 +20,6 @@ let points =
   |> String.split_on_char ' '
   |> [%madcast: string list -> (int * int) array]
 #+END_SRC
-
 ** MySQL API
 /madcast/ is primarily meant to be used in conjunction with low level
 API. Here is an example with MySQL:
@@ -35,7 +33,6 @@ let () =
   | Some (id, name, None) -> Format.eprintf "%s (%d) has no surname.@." name id
   | Some (id, name, Some surname) -> Format.eprintf "%s (%d) has %s for surname.@." name id surname
 #+END_SRC
-
 ** Try it yourself!
 You can see by yourself the code generated for a given type with =show.exe=:
 #+BEGIN_SRC ocaml
@@ -55,31 +52,22 @@ fun a  ->
                with | Failure _ -> failwith "madcast: string -> int")
               (a.(1 + (i * 2))))))
 #+END_SRC
-
 * Installation
 ** Using OPAM
 =ppx_deriving_madcast= is now available on OPAM:
 : opam install ppx_deriving_madcast
 ** Dependencies
-To build:
 - =jbuilder=
 - =ppx_deriving=
 - =ppxfind=
 - =ppx_tools=
-
-To install:
-- =opam-installer=
-
-To release:
-- =opam-query=
-- =opam-publish=
-
+- =opam-installer= (install)
+- =opam-query= (release)
+- =opam-publish= (release)
+- =odoc= (doc)
 * API
-/madcast/ also provides an API in case you only want the function that
-takes two =Parsetree.core_type= and derives a =Parsetree.expression= that
-casts the first =core_type= into the second one.
-
-This API is in the package =ppx_deriving_madcast.api=.
-
+/madcast/ also provides an API. This API is in the package
+=ppx_deriving_madcast.api=. Its documentation can be built with =make
+doc=.
 * License
 /madcast/ is distributed under the LGPL License.
