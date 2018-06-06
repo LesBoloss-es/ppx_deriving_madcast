@@ -1,3 +1,4 @@
+
 (alias
  ((name runtest)
   (action (run ./test.sh))
@@ -7,5 +8,4 @@
 
 (executable
  ((name show)
-  (libraries (ppx_deriving_madcast.api compiler-libs.common))
- ))
+  (libraries (ppx_deriving_madcast.api compiler-libs.common))))
