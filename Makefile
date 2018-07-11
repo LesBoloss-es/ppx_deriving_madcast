@@ -1,19 +1,19 @@
 build:
-	jbuilder build @install
+	dune build @install
 
 doc:
-	jbuilder build @doc
+	dune build @doc
 
 install:
-	jbuilder install
+	dune install
 
 uninstall:
-	jbuilder uninstall
+	dune uninstall
 
 test:
-	jbuilder runtest
+	dune runtest
 
 clean:
-	jbuilder clean
+	dune clean
 
 .PHONY: build doc install uninstall test clean

@@ -20,9 +20,9 @@ depends: [
   "ppx_deriving"
   "ppx_tools"
   "ppxfind" {build}
-  "jbuilder" {build}
+  "dune" {build}
   "ocamlfind" {test}
 ]
 
-build: [ "jbuilder" "build" "-p" name "-j" jobs ]
-build-test: [ "jbuilder" "runtest" ]
+build: ["dune" "build" "-p" name "-j" jobs]
+build-test: ["dune" "runtest"]

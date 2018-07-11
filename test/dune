@@ -1,0 +1,11 @@
+(alias
+ (name runtest)
+ (action (run ./test.sh))
+ (deps
+  ../.ppx/ppx_deriving_madcast/ppx.exe
+  (source_tree positive)
+  (source_tree negative)))
+
+(executable
+ (name show)
+ (libraries ppx_deriving_madcast.api compiler-libs.common))
