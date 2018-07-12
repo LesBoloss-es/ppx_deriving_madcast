@@ -1,8 +1,6 @@
 
 (* more than a set, rules are in fact stored in a semilattice *)
 
-open Parsetree
-
 type cell =
   { rule : Rule.t ;
     mutable higher : cell list ;
