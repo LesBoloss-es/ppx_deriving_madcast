@@ -13,7 +13,7 @@ fold_end apt_deps
 fold_start install_opam 'Install OPAM...'
 mkdir -p ~/.local/bin
 wget https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh -O - \
-    | sh -s ~/.local/bin system
+    | sh --fresh
 export PATH=~/.local/bin:$PATH
 fold_end install_opam
 
@@ -23,11 +23,11 @@ if [ -z "$OCAML_VERSION" ]; then
     printf 'No OCaml version provided in $OCAML_VERSION, using $DEFAULT_OCAML_VERSION (%s).\n' "$DEFAULT_OCAML_VERSION"
     OCAML_VERSION=$DEFAULT_OCAML_VERSION
 fi
-opam switch "$OCAML_VERSION"
+opam init --compiler=ocaml-base-compiler."$OCAML_VERSION"
 eval $(opam env)
 fold_end prep_opam
 
 ## OPAM dependencies
 fold_start opam_deps 'Install OPAM dependencies...'
-opam install -y jbuilder ppx_deriving ppxfind ppx_tools opam-installer
+opam install -y dune ppx_deriving ppxfind ppx_tools opam-installer
 fold_end opam_deps

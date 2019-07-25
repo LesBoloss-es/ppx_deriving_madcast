@@ -13,16 +13,17 @@ fold_start make 'Run `make`...'
 make
 fold_end make
 
-## Make install
-if [ -z "$RUN_TESTS" ]; then
-    fold_start install 'Run `make install`...'
-    make install
-    fold_end install
-fi
-
 ## Run tests
-if [ -n "$RUN_TESTS" ]; then
-    fold_start tests 'Run tests...'
-    make test
-    fold_end tests
-fi
+fold_start tests 'Run tests...'
+make test
+fold_end tests
+
+## Make install
+fold_start install 'Run `make install`...'
+make install
+fold_end install
+
+## Make uninstall
+fold_start uninstall 'Run `make uninstall`...'
+make uninstall
+fold_end uninstall

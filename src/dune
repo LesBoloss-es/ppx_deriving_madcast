@@ -11,9 +11,9 @@
  (modules Parsetree_utils ExtList Rule RuleSet Madcast))
 
 (library
- (name ppx)
+ (name ppx_deriving_madcast)
  (public_name ppx_deriving_madcast)
  (libraries ppx_deriving_madcast.api ppx_deriving.api)
  (preprocess (action (run ppxfind -legacy ppx_tools.metaquot --as-pp %{input-file})))
- (modules Ppx)
+ (modules ppx_deriving_madcast)
  (kind ppx_deriver))
