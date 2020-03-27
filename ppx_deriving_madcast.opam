@@ -1,8 +1,21 @@
-opam-version: "1.2"
+opam-version: "2.0"
 
 name: "ppx_deriving_madcast"
 version: "0.1"
+
 tags: [ "syntax" ]
+synopsis: "Library deriving cast functions based on their types"
+description: """
+This package provides a PPX that allows to derive cast functions based
+on their types.
+
+For instance, [%madcast: ('a * string) -> ('a * int)] would be replaced by:
+
+    fun (x, y) ->
+      (x,
+       try int_of_string y
+       with Failure _ -> failwith \"madcast: string -> int\")
+"""
 
 maintainer: "Niols <niols@niols.fr>"
 authors: [
@@ -15,14 +28,14 @@ homepage: "https://github.com/LesBoloss-es/ppx_deriving_madcast"
 bug-reports: "https://github.com/LesBoloss-es/ppx_deriving_madcast/issues"
 dev-repo: "git://github.com/LesBoloss-es/ppx_deriving_madcast.git"
 
-available: [ ocaml-version >= "4.04" ]
 depends: [
   "ppx_deriving"
   "ppx_tools"
-  "ppxfind" {build}
-  "dune" {build}
-  "ocamlfind" {test}
+  "ppxfind"   {build}
+  "dune"      {build}
+  "ocaml"     {>= "4.04"}
+  "ocamlfind" {with-test}
 ]
 
 build: ["dune" "build" "-p" name "-j" jobs]
-build-test: ["dune" "runtest"]
+run-test: ["dune" "runtest"]
