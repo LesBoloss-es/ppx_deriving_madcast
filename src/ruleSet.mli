@@ -1,4 +1,3 @@
-
 val register : ?applies_before:(Rule.t list) ->
                ?applies_after:(Rule.t list) ->
                Rule.t -> unit

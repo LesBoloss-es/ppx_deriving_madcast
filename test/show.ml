@@ -1,3 +1,5 @@
+open Ppxlib
+
 (** Compile a type to a caster **********************************************)
 
 let compile typ =

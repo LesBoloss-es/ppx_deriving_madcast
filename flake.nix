@@ -17,6 +17,7 @@
             ocaml-base-compiler = "*";
             ocaml-lsp-server = "*";
             ocp-indent = "*";
+            odoc = "*";
             utop = "*";
           };
       in
@@ -31,11 +32,12 @@
           };
 
           devShells.default = pkgs.mkShell {
-            buildInputs = [
-              packages.merlin
-              packages.ocaml-lsp-server
-              packages.ocp-indent
-              packages.utop
+            buildInputs = with packages; [
+              merlin
+              ocaml-lsp-server
+              ocp-indent
+              odoc
+              utop
             ];
             inputsFrom = [ packages.ppx_deriving_madcast ];
           };
