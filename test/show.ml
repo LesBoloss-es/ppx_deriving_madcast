@@ -11,7 +11,7 @@ let compile typ =
     Format.printf "%a@." Pprintast.expression cast
   with
   | Madcast.NoCastFound -> Format.printf "no cast found!@."
-  | Madcast.SeveralCastFound -> Format.printf "Several casts found!@."
+  | Madcast.SeveralCastsFound -> Format.printf "Several casts found!@."
   | Invalid_argument msg when msg = "split_arrow" ->
     Format.printf "expected an arrow type!@."
   | exn -> Location.report_exception Format.std_formatter exn
