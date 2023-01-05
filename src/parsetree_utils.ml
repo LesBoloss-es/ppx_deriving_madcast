@@ -42,11 +42,4 @@ let variables_of_core_type t =
   SSet.fold (fun x acc -> x :: acc) set []
 
 let universal_closure_of_core_type t =
-  Typ.poly (List.map
-#if OCAML_VERSION < (4, 05, 0)
-                 (fun x -> x)
-#else
-                 Location.mknoloc
-#endif
-              (variables_of_core_type t))
-    t
+  Typ.poly (List.map Location.mknoloc (variables_of_core_type t)) t
