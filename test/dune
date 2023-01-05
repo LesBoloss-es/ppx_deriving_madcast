@@ -1,11 +1,16 @@
 (rule
  (alias runtest)
  (action (run ./test.sh))
- (deps
-  ../.ppx/ppx_deriving_madcast/ppx.exe
+ (deps ./standalone.exe
   (source_tree positive)
   (source_tree negative)))
 
 (executable
+ (name standalone)
+ (libraries ppx_deriving_madcast ppxlib)
+ (modules standalone))
+
+(executable
  (name show)
- (libraries ppx_deriving_madcast.api compiler-libs.common))
+ (libraries ppx_deriving_madcast.api compiler-libs.common)
+ (modules show))
