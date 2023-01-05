@@ -12,5 +12,6 @@
 
 (executable
  (name show)
+ (public_name ppx_deriving_madcast_show)
  (libraries ppx_deriving_madcast.api compiler-libs.common)
  (modules show))

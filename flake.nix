@@ -22,7 +22,12 @@
       in
         {
           packages = packages // {
-            default = self.packages.${system}.ppx_deriving_madcast;
+            default = packages.ppx_deriving_madcast;
+          };
+
+          apps.show = {
+            type = "app";
+            program = "${packages.ppx_deriving_madcast}/bin/ppx_deriving_madcast_show";
           };
 
           devShells.default = pkgs.mkShell {
