@@ -12,7 +12,7 @@
   "\| This package provides a PPX that allows to derive cast functions based
   "\| on their types.
   "\|
-  "\| For instance, [%madcast: ('a * string) -> ('a * int)] would be replaced by:
+  "\| For instance, `[%madcast: ('a * string) -> ('a * int)]` would be replaced by:
   "\|
   "\|     fun (x, y) ->
   "\|       (x,
