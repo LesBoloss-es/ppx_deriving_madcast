@@ -1,3 +1,4 @@
+open Ppxlib
 open Parsetree
 
 (** {2 Main access point} *)

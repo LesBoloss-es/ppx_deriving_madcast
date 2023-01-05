@@ -1,3 +1,5 @@
+open Ppxlib
+
 (* FIXME: proper location *)
 let loc = Location.none
 
