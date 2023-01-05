@@ -1,0 +1,42 @@
+---
+
+name: ci
+
+on:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - '*'
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v3.2.0
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v18
+
+      - name: Install Nix Dependencies
+        run: nix develop --command true
+
+      - name: Build Everything
+        run: nix develop --command dune build
+
+      - name: Check Sync of Files
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            printf 'Files are not in sync; building changed some:\n'
+            git diff
+            exit 1
+          fi
+
+      - name: Build Documentation
+        run: nix develop --command dune build
+
+      - name: Test Everything
+        run: nix develop --command dune test
