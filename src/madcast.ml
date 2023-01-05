@@ -1,11 +1,12 @@
+open Ppxlib
 open Parsetree
 open Asttypes
 open Longident
 open Ast_helper
 open Location
 
-let mkpatvar i = Pat.var (mknoloc ("c"^(string_of_int i)))
-let mkident i = Exp.ident (mknoloc (Lident ("c"^(string_of_int i))))
+let mkpatvar i = Pat.var (Parsetree_utils.mknoloc ("c"^(string_of_int i)))
+let mkident i = Exp.ident (Parsetree_utils.mknoloc (Lident ("c"^(string_of_int i))))
 
 (* FIXME: proper location *)
 let loc = Location.none
