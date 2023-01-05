@@ -74,7 +74,7 @@ $ dune exec test/show.exe 'string list -> (int * int) array' \
 And if you don't feel like cloning but you love Nix, you can also go for:
 
 ```ocaml
-$ nix run github:LesBoloss-es/ppx_deriving_madcast#show -- 'string array -> (int * int) array'blm
+$ nix run github:LesBoloss-es/ppx_deriving_madcast#show -- 'string array -> (int * int) array'
 ```
 
 ## Installation
