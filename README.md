@@ -16,7 +16,7 @@ will simply be replaced by `string_of_int`.
 
 ### Parsing positions
 
-Say you have to parse a line of coordinates /x1/, /y1/, /x2/, /y2/, etc. and you want an array of pairs of integers:
+Say you have to parse a line of coordinates _x1_, _y1_, _x2_, _y2_, etc. and you want an array of pairs of integers:
 
 ```ocaml
 let points =
@@ -45,7 +45,7 @@ let () =
 
 You can see by yourself the code generated for a given type with `show.exe`:
 
-```console
+```ocaml
 $ dune exec test/show.exe 'string array -> (int * int) array'
 fun a  ->
   if ((Array.length a) mod 2) <> 0
