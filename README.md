@@ -65,16 +65,16 @@ fun a  ->
 
 Actually, if you feel fancy, we recommend adding `ocamlformat` and `bat` to the lot and running:
 
-```
-$ dune exec test/show.exe 'string list -> (int * int * float) array' \
+```ocaml
+$ dune exec test/show.exe 'string list -> (int * int) array' \
       | ocamlformat - --impl --enable-outside-detected-project \
       | bat --language ocaml
 ```
 
 And if you don't feel like cloning but you love Nix, you can also go for:
 
-```
-$ nix run github:LesBoloss-es/ppx_deriving_madcast#show -- 'string array -> (int * int) array'
+```ocaml
+$ nix run github:LesBoloss-es/ppx_deriving_madcast#show -- 'string array -> (int * int) array'blm
 ```
 
 ## Installation
