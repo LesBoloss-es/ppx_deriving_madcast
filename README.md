@@ -43,7 +43,7 @@ let () =
 
 ## Try it yourself!
 
-You can see by yourself the code generated for a given type with `show.exe`:
+You can see by yourself the code generated for a given type with `test/show.exe`:
 
 ```ocaml
 $ dune exec test/show.exe 'string array -> (int * int) array'
@@ -61,6 +61,14 @@ fun a  ->
                try int_of_string s
                with | Failure _ -> failwith "madcast: string -> int")
               (a.(1 + (i * 2))))))
+```
+
+Actually, if you feel fancy, we recommend adding `ocamlformat` and `bat` to the lot and running:
+
+```
+$ dune exec test/show.exe 'string list -> (int * int * float) array' \
+      | ocamlformat - --impl --enable-outside-detected-project \
+      | bat --language ocaml
 ```
 
 ## Installation
