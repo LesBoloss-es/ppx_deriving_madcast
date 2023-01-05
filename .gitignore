@@ -9,5 +9,9 @@ _build
 *#
 .#*
 
+## Direnv
+.envrc
+.direnv
+
 ## Project-specific
 ppx_deriving_madcast.[0-9]*
