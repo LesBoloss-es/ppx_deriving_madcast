@@ -1,19 +1,14 @@
-(rule
- (targets parsetree_utils.ml)
- (deps parsetree_utils.cppo.ml)
- (action (run %{bin:cppo} -V OCAML:%{ocaml_version} %{deps} -o %{targets})))
-
 (library
  (name madcast)
  (public_name ppx_deriving_madcast.api)
  (libraries ppx_deriving.api)
- (preprocess (action (run ppxfind -legacy ppx_tools.metaquot --as-pp %{input-file})))
+ (preprocess (pps ppxlib.metaquot))
  (modules Parsetree_utils ExtList Rule RuleSet Madcast))
 
 (library
  (name ppx_deriving_madcast)
  (public_name ppx_deriving_madcast)
  (libraries ppx_deriving_madcast.api ppx_deriving.api)
- (preprocess (action (run ppxfind -legacy ppx_tools.metaquot --as-pp %{input-file})))
+ (preprocess (pps ppxlib.metaquot))
  (modules ppx_deriving_madcast)
  (kind ppx_deriver))

@@ -1,3 +1,5 @@
+(* FIXME: proper location *)
+let loc = Location.none
 
 (* more than a set, rules are in fact stored in a semilattice *)
 

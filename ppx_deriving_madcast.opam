@@ -21,11 +21,9 @@ homepage: "https://github.com/LesBoloss-es/ppx_deriving_madcast"
 bug-reports: "https://github.com/LesBoloss-es/ppx_deriving_madcast/issues"
 depends: [
   "ppx_deriving"
-  "ppx_tools"
-  "ppxfind" {build}
+  "ppxlib"
   "dune" {build}
-  "ocaml" {build & >= "4.04"}
-  "ocamlfind" {with-test}
+  "ocaml" {build}
 ]
 build: [
   ["dune" "subst"] {pinned}

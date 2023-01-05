@@ -25,7 +25,7 @@ succeed () {
 }
 
 compile () {
-  ../.ppx/ppx_deriving_madcast/ppx.exe \
+  ./standalone.exe \
     "$1" \
     -o "${1%.ml}.pp.ml" \
   && ocamlfind ocamlc "${1%.ml}.pp.ml" -o "${1%.ml}.exe"

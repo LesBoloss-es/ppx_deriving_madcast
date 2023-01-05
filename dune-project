@@ -28,8 +28,7 @@
 
  (depends
    ppx_deriving
-   ppx_tools
-  (ppxfind :build)
-  (dune :build)
-  (ocaml (and :build (>= "4.04")))
-  (ocamlfind :with-test)))
+   ppxlib
+  (dune  :build)
+  (ocaml :build))
+)
