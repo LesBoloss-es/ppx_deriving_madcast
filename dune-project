@@ -4,7 +4,7 @@
 
 (package
  (name ppx_deriving_madcast)
- (version 0.1)
+ (version 0.2)
 
  (tags (syntax))
  (synopsis "Library deriving cast functions based on their types")
