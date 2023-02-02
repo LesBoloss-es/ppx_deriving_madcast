@@ -1,6 +1,6 @@
 ---
 
-name: ci
+name: CI
 
 on:
   push:
@@ -11,8 +11,12 @@ on:
   pull_request:
 
 jobs:
-  build-and-test:
+
+  cache-nix-dependencies:
+    name: Cache Nix dependencies
+
     runs-on: ubuntu-latest
+    needs: []
 
     steps:
       - name: Clone Repository
@@ -20,23 +24,73 @@ jobs:
 
       - name: Install Nix
         uses: cachix/install-nix-action@v18
+        with:
+          extra_nix_config: |
+            ## Access token to avoid triggering GitHub's rate limiting.
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Nix Dependencies
+      - name: Setup Nix cache
+        uses: cachix/cachix-action@v12
+        with:
+          name: ppx-deriving-madcast
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+
+      - name: Build Nix environment
         run: nix develop --command true
+
+  build-and-test:
+    name: Build and test
+
+    runs-on: ubuntu-latest
+    needs: cache-nix-dependencies
+
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v3.3.0
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v18
+        with:
+          extra_nix_config: |
+            ## Access token to avoid triggering GitHub's rate limiting.
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Nix cache
+        uses: cachix/cachix-action@v12
+        with:
+          name: ppx-deriving-madcast
 
       - name: Build Everything
         run: nix develop --command dune build
-
-      - name: Check Sync of Files
-        run: |
-          if [ -n "$(git status --porcelain)" ]; then
-            printf 'Files are not in sync; building changed some:\n'
-            git diff
-            exit 1
-          fi
 
       - name: Build Documentation
         run: nix develop --command dune build
 
       - name: Test Everything
         run: nix develop --command dune test
+
+  flake-checks:
+    name: Flake checks
+
+    runs-on: ubuntu-latest
+    needs: cache-nix-dependencies
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3.3.0
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v18
+        with:
+          extra_nix_config: |
+            ## Access token to avoid triggering GitHub's rate limiting.
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Nix caches
+        uses: cachix/cachix-action@v11
+        with:
+          name: ppx-deriving-madcast
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+
+      - name: Run flake checks
+        run: nix flake check --print-build-logs

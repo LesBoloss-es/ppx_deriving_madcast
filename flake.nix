@@ -1,45 +1,33 @@
 {
   inputs = {
-    opam-nix.url = github:tweag/opam-nix;
+    opam-nix.url = "github:tweag/opam-nix";
     nixpkgs.follows = "opam-nix/nixpkgs";
-
-    flake-utils.url = github:numtide/flake-utils;
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
   };
 
-  outputs = { self, nixpkgs, opam-nix, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs = inputs@{ flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      imports = [
+        inputs.pre-commit-hooks.flakeModule
+        ./.nix/app-show.nix
+        ./.nix/devshell-default.nix
+        ./.nix/formatter.nix
+        ./.nix/package-ppx_deriving_madcast.nix
+        ./.nix/package-default.nix
+        ./.nix/perinput-lib.nix
+        ./.nix/pre-commit-settings.nix
+        ./.nix/pre-commit-settings-dune-opam-sync.nix
+        ./.nix/pre-commit-settings-ocp-indent.nix
+        ./.nix/pre-commit-settings-opam-lint.nix
+        ./.nix/systems.nix
+      ];
+    };
 
-      let pkgs = nixpkgs.legacyPackages.${system};
-          on = opam-nix.lib.${system};
-
-          packages = on.buildOpamProject { pkgs = pkgs; } "ppx_deriving_madcast" ./. {
-            merlin = "*";
-            ocaml-base-compiler = "*";
-            ocaml-lsp-server = "*";
-            ocp-indent = "*";
-            odoc = "*";
-            utop = "*";
-          };
-      in
-        {
-          packages = packages // {
-            default = packages.ppx_deriving_madcast;
-          };
-
-          apps.show = {
-            type = "app";
-            program = "${packages.ppx_deriving_madcast}/bin/ppx_deriving_madcast_show";
-          };
-
-          devShells.default = pkgs.mkShell {
-            buildInputs = with packages; [
-              merlin
-              ocaml-lsp-server
-              ocp-indent
-              odoc
-              utop
-            ];
-            inputsFrom = [ packages.ppx_deriving_madcast ];
-          };
-        });
+  nixConfig = {
+    extra-trusted-substituters = [ "https://ppx-deriving-madcast.cachix.org/" ];
+    extra-trusted-public-keys = [
+      "ppx-deriving-madcast.cachix.org-1:nWv3lv2Md9LX0M1CtT7TGWS2HwGdb6N9xuAHbbk8h/g="
+    ];
+  };
 }
