@@ -42,8 +42,8 @@ let register ?(applies_before=[]) ?(applies_after=[]) rule =
   identity.higher <- cell :: identity.higher;
   List.iter
     (fun rule' ->
-      let cell' = lookup_cell rule' in
-      cell'.higher <- cell :: cell'.higher)
+       let cell' = lookup_cell rule' in
+       cell'.higher <- cell :: cell'.higher)
     applies_after
 
 let fill_levels () =
@@ -60,14 +60,14 @@ let fold_by_priority f x =
   let rec fold x level = function
     | [] -> x
     | cells_at_that_level ->
-       let x' = f (List.map (fun cell -> cell.rule) cells_at_that_level) x in
-       let next_level = level + 1 in
-       let cells_at_next_level =
-         List.map (fun cell -> cell.higher) cells_at_that_level
-         |> List.flatten
-         |> List.filter (fun cell -> cell.level = next_level)
-       in
-       fold x' next_level cells_at_next_level
+      let x' = f (List.map (fun cell -> cell.rule) cells_at_that_level) x in
+      let next_level = level + 1 in
+      let cells_at_next_level =
+        List.map (fun cell -> cell.higher) cells_at_that_level
+        |> List.flatten
+        |> List.filter (fun cell -> cell.level = next_level)
+      in
+      fold x' next_level cells_at_next_level
   in
   fill_levels ();
   fold x identity.level [identity]
