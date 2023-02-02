@@ -23,4 +23,11 @@
         ./.nix/systems.nix
       ];
     };
+
+  nixConfig = {
+    extra-trusted-substituters = [ "https://ppx-deriving-madcast.cachix.org/" ];
+    extra-trusted-public-keys = [
+      "ppx-deriving-madcast.cachix.org-1:nWv3lv2Md9LX0M1CtT7TGWS2HwGdb6N9xuAHbbk8h/g="
+    ];
+  };
 }
