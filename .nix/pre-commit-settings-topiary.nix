@@ -7,9 +7,10 @@
         topiary-inplace = pkgs.writeShellApplication {
           name = "topiary-inplace";
           text = ''
-            printf 'Running Topiary in place on `%s´...\n' "$1"
-            ${inputs'.topiary.packages.default}/bin/topiary -i "$1" \
-                | ${pkgs.moreutils}/bin/sponge "$1"
+            for file; do
+              ${inputs'.topiary.packages.default}/bin/topiary -i "$file" \
+                | ${pkgs.moreutils}/bin/sponge "$file"
+            done
           '';
         };
       in "${topiary-inplace}/bin/topiary-inplace";
