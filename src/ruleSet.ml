@@ -5,19 +5,19 @@ let loc = Location.none
 
 (* more than a set, rules are in fact stored in a semilattice *)
 
-type cell =
-  { rule : Rule.t ;
-    mutable higher : cell list ;
-    mutable level : int }
+type cell = {
+  rule: Rule.t;
+  mutable higher: cell list;
+  mutable level: int;
+}
 
-let make_cell ?(level=(-1)) ?(higher=[]) rule =
-  { rule ; higher ; level }
+let make_cell ?(level = (-1)) ?(higher = []) rule =
+  { rule; higher; level }
 
 let identity =
   let name = "'a -> 'a" in
   let matcher (itype, otype) =
-    if Parsetree_utils.equal_core_type itype otype
-    then Some []
+    if Parsetree_utils.equal_core_type itype otype then Some []
     else None
   in
   let builder casts =
@@ -36,14 +36,14 @@ let lookup_cell rule =
 let lookup name =
   (SMap.find name !cells).rule
 
-let register ?(applies_before=[]) ?(applies_after=[]) rule =
-  let cell = make_cell ~higher:(List.map lookup_cell applies_before) rule in
+let register ?(applies_before = []) ?(applies_after = []) rule =
+  let cell = make_cell ~higher: (List.map lookup_cell applies_before) rule in
   cells := SMap.add (Rule.name_ rule) cell !cells;
-  identity.higher <- cell :: identity.higher;
+  identity.higher <- cell::identity.higher;
   List.iter
     (fun rule' ->
-       let cell' = lookup_cell rule' in
-       cell'.higher <- cell :: cell'.higher)
+      let cell' = lookup_cell rule' in
+      cell'.higher <- cell::cell'.higher)
     applies_after
 
 let fill_levels () =
@@ -51,7 +51,7 @@ let fill_levels () =
     assert (not (List.mem cell lower));
     if cell.level < i then
       cell.level <- i;
-    List.iter (fill_level (i+1) (cell :: lower)) cell.higher
+    List.iter (fill_level (i + 1) (cell::lower)) cell.higher
   in
   SMap.iter (fun _ cell -> cell.level <- -1) !cells;
   fill_level 0 [] identity
