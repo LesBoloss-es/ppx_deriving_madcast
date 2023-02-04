@@ -3,7 +3,8 @@
     opam-nix.url = "github:tweag/opam-nix";
     nixpkgs.follows = "opam-nix/nixpkgs";
     flake-parts.url = "github:hercules-ci/flake-parts";
-    pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
+    pre-commit-hooks.url =
+      "github:niols/pre-commit-hooks.nix/add-various-ocaml-hooks";
     topiary.url = "github:tweag/topiary";
   };
 
@@ -18,8 +19,6 @@
         ./.nix/package-default.nix
         ./.nix/perinput-lib.nix
         ./.nix/pre-commit-settings.nix
-        ./.nix/pre-commit-settings-dune-opam-sync.nix
-        ./.nix/pre-commit-settings-opam-lint.nix
         ./.nix/pre-commit-settings-topiary.nix
         ./.nix/systems.nix
       ];
