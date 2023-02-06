@@ -7,9 +7,11 @@ let () =
 
 let () =
   let actual =
-    [|Some [|Some "1"; Some "Pierre"; Some "7"|];
-    Some [|Some "3"; Some "Paul"; None|];
-    None|]
+    [|
+      Some [|Some "1"; Some "Pierre"; Some "7"|];
+      Some [|Some "3"; Some "Paul"; None|];
+      None;
+    |]
     |> [%madcast: string option array option array -> (int * string * string option ) option list]
   in
   let expected =
