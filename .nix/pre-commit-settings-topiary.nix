@@ -8,8 +8,8 @@
           name = "topiary-inplace";
           text = ''
             for file; do
-              ${inputs'.topiary.packages.default}/bin/topiary -i "$file" \
-                | ${pkgs.moreutils}/bin/sponge "$file"
+              ${inputs'.topiary.packages.default}/bin/topiary \
+                --in-place --input-file "$file"
             done
           '';
         };

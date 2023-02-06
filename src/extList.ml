@@ -17,9 +17,9 @@ let foldi_right f l x =
 let rec bd = function
   | [] -> failwith "bd"
   | [_] -> []
-  | h::q -> h::bd q
+  | h :: q -> h :: bd q
 
 let rec ft = function
   | [] -> failwith "ft"
   | [e] -> e
-  | _::q -> ft q
+  | _ :: q -> ft q

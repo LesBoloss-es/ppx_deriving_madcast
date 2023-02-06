@@ -395,8 +395,8 @@ let () =
     | [%type: [%t? { ptyp_desc = Ptyp_tuple iitypes; _ } ] -> [%t? iotype]] ->
       ( let rec matcher = function
         | ([], ootype) -> [(iotype, ootype)] (* this is the right order *)
-        | (iitype::iitypes, [%type: [%t? oitype] -> [%t? ootype]]) ->
-          (oitype, iitype)::matcher (iitypes, ootype)
+        | (iitype :: iitypes, [%type: [%t? oitype] -> [%t? ootype]]) ->
+          (oitype, iitype) :: matcher (iitypes, ootype)
         | _ -> failwith "matcher"
       in
       try
@@ -443,8 +443,8 @@ let () =
     | [%type: [%t? { ptyp_desc = Ptyp_tuple oitypes; _ } ] -> [%t? ootype]] ->
       ( let rec matcher = function
         | (iotype, []) -> [(iotype, ootype)] (* this is the right order *)
-        | ([%type: [%t? iitype] -> [%t? iotype]], oitype::ootypes) ->
-          (oitype, iitype)::matcher (iotype, ootypes)
+        | ([%type: [%t? iitype] -> [%t? iotype]], oitype :: ootypes) ->
+          (oitype, iitype) :: matcher (iotype, ootypes)
         | _ -> failwith "matcher"
       in
       try
@@ -479,12 +479,12 @@ let () =
 let rec reverse_possibles = function
   (* changes a list of possibilities in possibilities of lists *)
   | [] -> [[]]
-  | possible_heads::tail_of_possibles ->
+  | possible_heads :: tail_of_possibles ->
     List.map
       (fun possible_tail ->
         List.map
           (fun possible_head ->
-            possible_head::possible_tail)
+            possible_head :: possible_tail)
           possible_heads)
       (reverse_possibles tail_of_possibles)
     |> List.flatten
