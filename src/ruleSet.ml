@@ -41,9 +41,11 @@ let register ?(applies_before = []) ?(applies_after = []) rule =
   cells := SMap.add (Rule.name_ rule) cell !cells;
   identity.higher <- cell :: identity.higher;
   List.iter
-    (fun rule' ->
-      let cell' = lookup_cell rule' in
-      cell'.higher <- cell :: cell'.higher)
+    (
+      fun rule' ->
+        let cell' = lookup_cell rule' in
+        cell'.higher <- cell :: cell'.higher
+    )
     applies_after
 
 let fill_levels () =

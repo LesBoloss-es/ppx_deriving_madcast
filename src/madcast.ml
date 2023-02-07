@@ -128,17 +128,19 @@ let () =
     );
   ]
   |> List.iter
-    (fun (name, itype, otype, expr) ->
-      let matcher (itype', otype') =
-        if Parsetree_utils.equal_core_type itype itype'
-          && Parsetree_utils.equal_core_type otype otype' then Some []
-        else None
-      in
-      let builder casts =
-        assert (casts = []);
-        expr
-      in
-      RuleSet.register (Rule.make ~name ~matcher ~builder ()))
+    (
+      fun (name, itype, otype, expr) ->
+        let matcher (itype', otype') =
+          if Parsetree_utils.equal_core_type itype itype'
+            && Parsetree_utils.equal_core_type otype otype' then Some []
+          else None
+        in
+        let builder casts =
+          assert (casts = []);
+          expr
+        in
+        RuleSet.register (Rule.make ~name ~matcher ~builder ())
+    )
 
 (* ============================== [ Options ] =============================== *)
 
@@ -312,12 +314,18 @@ let () =
       else
         Array.init
           (Array.length a / [%e exp_int l])
-          (fun i ->
-            [%e Exp.tuple
-              (List.mapi
-                (fun j cast ->
-                  [%expr [%e cast] a.([%e exp_int j] + i * [%e exp_int l])])
-                casts)])]
+          (
+            fun i ->
+              [%e Exp.tuple
+                (
+                  List.mapi
+                    (
+                      fun j cast ->
+                        [%expr [%e cast] a.([%e exp_int j] + i * [%e exp_int l])]
+                    )
+                    casts
+                )]
+          )]
   in
   RuleSet.(register
     ~applies_before: [lookup "'a -> 'b array"; lookup "'a array -> 'b"]
@@ -393,16 +401,18 @@ let () =
   let matcher (itype, otype) =
     match itype with
     | [%type: [%t? { ptyp_desc = Ptyp_tuple iitypes; _ } ] -> [%t? iotype]] ->
-      ( let rec matcher = function
-        | ([], ootype) -> [(iotype, ootype)] (* this is the right order *)
-        | (iitype :: iitypes, [%type: [%t? oitype] -> [%t? ootype]]) ->
-          (oitype, iitype) :: matcher (iitypes, ootype)
-        | _ -> failwith "matcher"
-      in
-      try
-        Some (matcher (iitypes, otype))
-      with
-        Failure _ -> None)
+      (
+        let rec matcher = function
+          | ([], ootype) -> [(iotype, ootype)] (* this is the right order *)
+          | (iitype :: iitypes, [%type: [%t? oitype] -> [%t? ootype]]) ->
+            (oitype, iitype) :: matcher (iitypes, ootype)
+          | _ -> failwith "matcher"
+        in
+        try
+          Some (matcher (iitypes, otype))
+        with
+          Failure _ -> None
+      )
     | _ -> None
   in
   let builder casts =
@@ -411,26 +421,33 @@ let () =
     [%expr fun f ->
       [%e ExtList.foldi_right
         (* imbricated functions *)
-        (fun i _ exp ->
-          Exp.fun_ Nolabel None (mkpatvar i) exp)
+        (
+          fun i _ exp ->
+            Exp.fun_ Nolabel None (mkpatvar i) exp
+        )
         icasts
         (
-        (* the body of the function *)
-        Exp.apply
-          ocast
-          [
-            Nolabel,
-            Exp.apply
-              [%expr f]
-              [
-                Nolabel,
-                Exp.tuple
-                  (List.mapi
-                    (fun i icast ->
-                      Exp.apply icast [Nolabel, mkident i])
-                    icasts);
-              ];
-          ])]]
+          (* the body of the function *)
+          Exp.apply
+            ocast
+            [
+              Nolabel,
+              Exp.apply
+                [%expr f]
+                [
+                  Nolabel,
+                  Exp.tuple
+                    (
+                      List.mapi
+                        (
+                          fun i icast ->
+                            Exp.apply icast [Nolabel, mkident i]
+                        )
+                        icasts
+                    );
+                ];
+            ]
+        )]]
   in
   RuleSet.register
     ~applies_after: [RuleSet.lookup "('a -> 'b) -> ('c -> 'd)"]
@@ -441,16 +458,18 @@ let () =
   let matcher (itype, otype) =
     match otype with
     | [%type: [%t? { ptyp_desc = Ptyp_tuple oitypes; _ } ] -> [%t? ootype]] ->
-      ( let rec matcher = function
-        | (iotype, []) -> [(iotype, ootype)] (* this is the right order *)
-        | ([%type: [%t? iitype] -> [%t? iotype]], oitype :: ootypes) ->
-          (oitype, iitype) :: matcher (iotype, ootypes)
-        | _ -> failwith "matcher"
-      in
-      try
-        Some (matcher (itype, oitypes))
-      with
-        Failure _ -> None)
+      (
+        let rec matcher = function
+          | (iotype, []) -> [(iotype, ootype)] (* this is the right order *)
+          | ([%type: [%t? iitype] -> [%t? iotype]], oitype :: ootypes) ->
+            (oitype, iitype) :: matcher (iotype, ootypes)
+          | _ -> failwith "matcher"
+        in
+        try
+          Some (matcher (itype, oitypes))
+        with
+          Failure _ -> None
+      )
     | _ -> None
   in
   let builder casts =
@@ -461,14 +480,18 @@ let () =
         Nolabel
         None
         (Pat.tuple (List.mapi (fun i _ -> mkpatvar i) icasts))
-        (Exp.apply
-          ocast
-          [
-            Nolabel,
-            (Exp.apply
-              [%expr f]
-              (List.mapi (fun i icast -> (Nolabel, Exp.apply icast [Nolabel, mkident i])) icasts));
-          ])]]
+        (
+          Exp.apply
+            ocast
+            [
+              Nolabel,
+              (
+                Exp.apply
+                  [%expr f]
+                  (List.mapi (fun i icast -> (Nolabel, Exp.apply icast [Nolabel, mkident i])) icasts)
+              );
+            ]
+        )]]
   in
   RuleSet.register
     ~applies_after: [RuleSet.lookup "('a -> 'b) -> ('c -> 'd)"]
@@ -481,39 +504,51 @@ let rec reverse_possibles = function
   | [] -> [[]]
   | possible_heads :: tail_of_possibles ->
     List.map
-      (fun possible_tail ->
-        List.map
-          (fun possible_head ->
-            possible_head :: possible_tail)
-          possible_heads)
+      (
+        fun possible_tail ->
+          List.map
+            (
+              fun possible_head ->
+                possible_head :: possible_tail
+            )
+            possible_heads
+      )
       (reverse_possibles tail_of_possibles)
     |> List.flatten
 
 let rec find_caster (itype, otype) : Parsetree.expression list =
   RuleSet.fold_by_priority
-    (fun rules ->
-      function
-      | [] ->
-        (* Empty means that the stronger priorities have found
+    (
+      fun rules ->
+        function
+        | [] ->
+          (* Empty means that the stronger priorities have found
             nothing. We go through all the rules at our priority,
             apply them and see which ones did succeed. *)
-        List.fold_left
-          (fun casts rule ->
-            match Rule.match_ rule (itype, otype) with
-            | None -> (* the rule found nothing *) casts
-            | Some premises ->
-              (List.map find_caster premises
-              |> reverse_possibles
-              |> List.map
-                (fun premises ->
-                  Rule.build_ rule premises))
-              @ casts)
-          []
-          rules
-      | _ as casts ->
-        (* Non-empty means that the previous priorities have found
+          List.fold_left
+            (
+              fun casts rule ->
+                match Rule.match_ rule (itype, otype) with
+                | None -> (* the rule found nothing *) casts
+                | Some premises ->
+                  (
+                    List.map find_caster premises
+                    |> reverse_possibles
+                    |> List.map
+                      (
+                        fun premises ->
+                          Rule.build_ rule premises
+                      )
+                  )
+                  @ casts
+            )
+            []
+            rules
+        | _ as casts ->
+          (* Non-empty means that the previous priorities have found
             something already, so we let that and do nothing. *)
-        casts)
+          casts
+    )
     []
 
 (* ============================== [ Frontend ] ============================== *)
