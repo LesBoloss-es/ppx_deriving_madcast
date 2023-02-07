@@ -12,6 +12,7 @@
       imports = [
         inputs.pre-commit-hooks.flakeModule
         ./.nix/app-show.nix
+        ./.nix/app-topiarise.nix
         ./.nix/devshell-default.nix
         ./.nix/formatter.nix
         ./.nix/package-ppx_deriving_madcast.nix
