@@ -409,15 +409,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1675698177,
-        "narHash": "sha256-MYu7P+2rBBCxjeFnj/6GKP33KrbXFp+sphVLRgoY95c=",
+        "lastModified": 1675774234,
+        "narHash": "sha256-etwjz34W/W/x2cBU71w6t65WRPW0Ec3p6IsX8M3HVio=",
         "owner": "tweag",
         "repo": "topiary",
-        "rev": "f97a1635429a5ab85d5e8ecd3d8dca42da067c01",
+        "rev": "1fac6d22bfda1d9caa17f6005de16cd01c0e77cc",
         "type": "github"
       },
       "original": {
         "owner": "tweag",
+        "ref": "niols/pre-commit-hook.nix",
         "repo": "topiary",
         "type": "github"
       }
