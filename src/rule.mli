@@ -5,7 +5,7 @@ type t
 
 val make :
   name: string ->
-  matcher: ((core_type * core_type) -> (core_type * core_type ) list option) ->
+  matcher: ((core_type * core_type) -> (core_type * core_type) list option) ->
   builder: (expression list -> expression) ->
   unit ->
   t
@@ -14,5 +14,5 @@ val make :
     matcher function and a builder function. *)
 
 val name_ : t -> string
-val match_ : t -> (core_type * core_type) -> (core_type * core_type ) list option
+val match_ : t -> (core_type * core_type) -> (core_type * core_type) list option
 val build_ : t -> expression list -> expression

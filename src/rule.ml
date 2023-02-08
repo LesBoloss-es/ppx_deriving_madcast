@@ -3,7 +3,7 @@ open Parsetree
 
 type t = {
   name: string;
-  matcher: (core_type * core_type) -> (core_type * core_type ) list option;
+  matcher: (core_type * core_type) -> (core_type * core_type) list option;
   builder: expression list -> expression;
 }
 

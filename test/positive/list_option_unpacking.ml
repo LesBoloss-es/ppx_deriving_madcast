@@ -12,7 +12,7 @@ let () =
       Some [|Some "3"; Some "Paul"; None|];
       None;
     |]
-    |> [%madcast: string option array option array -> (int * string * string option ) option list]
+    |> [%madcast: string option array option array -> (int * string * string option) option list]
   in
   let expected =
     [
