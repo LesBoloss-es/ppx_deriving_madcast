@@ -147,7 +147,7 @@ let () =
 let () =
   let name = "'a option -> 'b option" in
   let matcher = function
-    | [%type: [%t? itype]option], [%type: [%t? otype]option] ->
+    | [%type: [%t? itype] option], [%type: [%t? otype] option] ->
       Some [itype, otype]
     | _ -> None
   in
@@ -162,7 +162,7 @@ let () =
 let () =
   let name = "'a -> 'b option" in
   let matcher = function
-    | itype, [%type: [%t? otype]option] ->
+    | itype, [%type: [%t? otype] option] ->
       Some [itype, otype]
     | _ -> None
   in
@@ -177,7 +177,7 @@ let () =
 let () =
   let name = "'a option -> 'b" in
   let matcher = function
-    | [%type: [%t? itype]option], otype ->
+    | [%type: [%t? itype] option], otype ->
       Some [itype, otype]
     | _ -> None
   in
@@ -196,7 +196,7 @@ let () =
 let () =
   let name = "'a array -> 'b array" in
   let matcher = function
-    | [%type: [%t? itype]array], [%type: [%t? otype]array] ->
+    | [%type: [%t? itype] array], [%type: [%t? otype] array] ->
       Some [itype, otype]
     | _ -> None
   in
@@ -209,7 +209,7 @@ let () =
 let () =
   let name = "'a -> 'b array" in
   let matcher = function
-    | itype, [%type: [%t? otype]array] ->
+    | itype, [%type: [%t? otype] array] ->
       Some [itype, otype]
     | _ -> None
   in
@@ -224,7 +224,7 @@ let () =
 let () =
   let name = "'a array -> 'b" in
   let matcher = function
-    | [%type: [%t? itype]array], otype ->
+    | [%type: [%t? itype] array], otype ->
       Some [itype, otype]
     | _ -> None
   in
@@ -243,7 +243,7 @@ let () =
 let () =
   let name = "<tuple> -> 'b array" in
   let matcher = function
-    | { ptyp_desc = Ptyp_tuple itypes; _ } , [%type: [%t? otype]array] ->
+    | { ptyp_desc = Ptyp_tuple itypes; _ } , [%type: [%t? otype] array] ->
       Some (List.map (fun itype -> (itype, otype)) itypes)
     | _ -> None
   in
@@ -260,7 +260,7 @@ let () =
 let () =
   let name = "'a array -> <tuple>" in
   let matcher = function
-    | [%type: [%t? itype]array], { ptyp_desc = Ptyp_tuple otypes; _ } ->
+    | [%type: [%t? itype] array], { ptyp_desc = Ptyp_tuple otypes; _ } ->
       Some (List.map (fun otype -> (itype, otype)) otypes)
     | _ -> None
   in
@@ -283,8 +283,8 @@ let () =
 let () =
   let name = "<tuple> array -> 'a array" in
   let matcher = function
-    | [%type: [%t? { ptyp_desc = Ptyp_tuple itypes; _ } ]array], [%type: [%t? otype]array] ->
-      Some [Typ.tuple itypes, [%type: [%t otype]array]]
+    | [%type: [%t? { ptyp_desc = Ptyp_tuple itypes; _ } ] array], [%type: [%t? otype] array] ->
+      Some [Typ.tuple itypes, [%type: [%t otype] array]]
     | _ -> None
   in
   let builder casts =
@@ -301,7 +301,7 @@ let () =
 let () =
   let name = "'a array -> <tuple> array" in
   let matcher = function
-    | [%type: [%t? itype]array], [%type: [%t? { ptyp_desc = Ptyp_tuple otypes; _ } ]array] ->
+    | [%type: [%t? itype] array], [%type: [%t? { ptyp_desc = Ptyp_tuple otypes; _ } ] array] ->
       Some (List.map (fun otype -> (itype, otype)) otypes)
     | _ -> None
   in
@@ -338,8 +338,8 @@ let () =
 let () =
   let name = "'a list -> 'a array -> 'b" in
   let matcher = function
-    | [%type: [%t? itype]list], otype ->
-      Some [[%type: [%t itype]array], otype]
+    | [%type: [%t? itype] list], otype ->
+      Some [[%type: [%t itype] array], otype]
     | _ -> None
   in
   let builder casts =
@@ -351,8 +351,8 @@ let () =
 let () =
   let name = "'a -> 'b array -> 'b list" in
   let matcher = function
-    | itype, [%type: [%t? otype]list] ->
-      Some [itype, [%type: [%t otype]array]]
+    | itype, [%type: [%t? otype] list] ->
+      Some [itype, [%type: [%t otype] array]]
     | _ -> None
   in
   let builder casts =
