@@ -409,11 +409,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1675955300,
-        "narHash": "sha256-GaBIoluQsIVqB/m2W13Kh1nakj3O96fGbFEkaHRHxeA=",
+        "lastModified": 1676031064,
+        "narHash": "sha256-rChOJl9LaMfGDgVH3SVxlESwESuUxpk4JSNVY69B1Cg=",
         "owner": "tweag",
         "repo": "topiary",
-        "rev": "39b17933b13fdf88059037c02bf666bc12e638ee",
+        "rev": "cb47ffd35debd2c44e835df40186d3f51407cfe7",
         "type": "github"
       },
       "original": {
