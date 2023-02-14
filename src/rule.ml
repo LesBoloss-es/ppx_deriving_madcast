@@ -8,7 +8,7 @@ type t = {
 }
 
 let make ~name ~matcher ~builder () =
-  { name; matcher; builder }
+  { name; matcher; builder; }
 
 let name_ rule = rule.name
 let match_ rule = rule.matcher

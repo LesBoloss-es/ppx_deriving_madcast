@@ -20,16 +20,18 @@ let () =
       [%type: bool],
       [%type: float],
       [%expr function
-      | false -> 0.
-      | true -> 1.]
+        | false -> 0.
+        | true -> 1.
+      ]
     );
     (
       "bool -> int",
       [%type: bool],
       [%type: int],
       [%expr function
-      | false -> 0
-      | true -> 1]
+        | false -> 0
+        | true -> 1
+      ]
     );
     (
       "bool -> string",
@@ -60,19 +62,21 @@ let () =
       [%type: int],
       [%type: bool],
       [%expr function
-      | 0 -> false
-      | 1 -> true
-      | _ -> failwith "madcast: int -> bool"]
+        | 0 -> false
+        | 1 -> true
+        | _ -> failwith "madcast: int -> bool"
+      ]
     );
     (
       "int -> char",
       [%type: int],
       [%type: char],
       [%expr fun i ->
-        try
-          char_of_int i
-        with
-          Failure _ -> failwith "madcast: int -> char"]
+          try
+            char_of_int i
+          with
+            Failure _ -> failwith "madcast: int -> char"
+      ]
     );
     (
       "int -> float",
@@ -91,40 +95,44 @@ let () =
       [%type: string],
       [%type: bool],
       [%expr fun s ->
-        try
-          bool_of_string s
-        with
-          Failure _ -> failwith "madcast: string -> bool"]
+          try
+            bool_of_string s
+          with
+            Failure _ -> failwith "madcast: string -> bool"
+      ]
     );
     (
       "string -> char",
       [%type: string],
       [%type: char],
       [%expr fun s ->
-        if String.length s = 1 then
-          s.[0]
-        else
-          failwith "madcast: string -> char"]
+          if String.length s = 1 then
+            s.[0]
+          else
+            failwith "madcast: string -> char"
+      ]
     );
     (
       "string -> float",
       [%type: string],
       [%type: float],
       [%expr fun s ->
-        try
-          float_of_string s
-        with
-          Failure _ -> failwith "madcast: string -> float"]
+          try
+            float_of_string s
+          with
+            Failure _ -> failwith "madcast: string -> float"
+      ]
     );
     (
       "string -> int",
       [%type: string],
       [%type: int],
       [%expr fun s ->
-        try
-          int_of_string s
-        with
-          Failure _ -> failwith "madcast: string -> int"]
+          try
+            int_of_string s
+          with
+            Failure _ -> failwith "madcast: string -> int"
+      ]
     );
   ]
   |> List.iter
@@ -154,8 +162,9 @@ let () =
   let builder casts =
     assert (List.length casts = 1);
     [%expr function
-    | None -> None
-    | Some x -> Some ([%e List.hd casts] x)]
+      | None -> None
+      | Some x -> Some ([%e List.hd casts] x)
+    ]
   in
   RuleSet.register (Rule.make ~name ~matcher ~builder ())
 
@@ -184,8 +193,9 @@ let () =
   let builder casts =
     assert (List.length casts = 1);
     [%expr function
-    | None -> failwith "madcast: 'a option -> 'b"
-    | Some x -> [%e List.hd casts] x]
+      | None -> failwith "madcast: 'a option -> 'b"
+      | Some x -> [%e List.hd casts] x
+    ]
   in
   RuleSet.(register
     ~applies_after: [lookup "'a option -> 'b option"]
@@ -231,10 +241,11 @@ let () =
   let builder casts =
     assert (List.length casts = 1);
     [%expr fun a ->
-      if Array.length a = 1 then
-        [%e List.hd casts] a.(0)
-      else
-        failwith "madcast: 'a array -> 'b"]
+        if Array.length a = 1 then
+          [%e List.hd casts] a.(0)
+        else
+          failwith "madcast: 'a array -> 'b"
+    ]
   in
   RuleSet.(register
     ~applies_after: [lookup "'a array -> 'b array"; lookup "'a -> 'b array"]
@@ -290,9 +301,10 @@ let () =
   let builder casts =
     assert (List.length casts = 1);
     [%expr fun a ->
-      Array.map [%e List.hd casts] a
-      |> Array.to_list
-      |> Array.concat]
+        Array.map [%e List.hd casts] a
+        |> Array.to_list
+        |> Array.concat
+    ]
   in
   RuleSet.(register
     ~applies_before: [lookup "'a -> 'b array"; lookup "'a array -> 'b"]
@@ -309,23 +321,25 @@ let () =
     let l = List.length casts in
     let exp_int n = Exp.constant (Const.int n) in
     [%expr fun a ->
-      if Array.length a mod [%e exp_int l] <> 0 then
-        failwith "madcast: 'a array -> <tuple> array"
-      else
-        Array.init
-          (Array.length a / [%e exp_int l])
-          (
-            fun i ->
-              [%e Exp.tuple
-                (
-                  List.mapi
+        if Array.length a mod [%e exp_int l] <> 0 then
+          failwith "madcast: 'a array -> <tuple> array"
+        else
+          Array.init
+            (Array.length a / [%e exp_int l])
+            (
+              fun i ->
+                [%e Exp.tuple
                     (
-                      fun j cast ->
-                        [%expr [%e cast] a.([%e exp_int j] + i * [%e exp_int l])]
+                      List.mapi
+                        (
+                          fun j cast ->
+                            [%expr [%e cast] a.([%e exp_int j] + i * [%e exp_int l])]
+                        )
+                        casts
                     )
-                    casts
-                )]
-          )]
+                ]
+            )
+    ]
   in
   RuleSet.(register
     ~applies_before: [lookup "'a -> 'b array"; lookup "'a array -> 'b"]
@@ -419,35 +433,37 @@ let () =
     let ocast = ExtList.ft casts in
     let icasts = ExtList.bd casts in
     [%expr fun f ->
-      [%e ExtList.foldi_right
-        (* imbricated functions *)
-        (
-          fun i _ exp ->
-            Exp.fun_ Nolabel None (mkpatvar i) exp
-        )
-        icasts
-        (
-          (* the body of the function *)
-          Exp.apply
-            ocast
-            [
-              Nolabel,
+        [%e ExtList.foldi_right
+            (* imbricated functions *)
+            (
+              fun i _ exp ->
+                Exp.fun_ Nolabel None (mkpatvar i) exp
+            )
+            icasts
+            (
+              (* the body of the function *)
               Exp.apply
-                [%expr f]
+                ocast
                 [
                   Nolabel,
-                  Exp.tuple
-                    (
-                      List.mapi
+                  Exp.apply
+                    [%expr f]
+                    [
+                      Nolabel,
+                      Exp.tuple
                         (
-                          fun i icast ->
-                            Exp.apply icast [Nolabel, mkident i]
-                        )
-                        icasts
-                    );
-                ];
-            ]
-        )]]
+                          List.mapi
+                            (
+                              fun i icast ->
+                                Exp.apply icast [Nolabel, mkident i]
+                            )
+                            icasts
+                        );
+                    ];
+                ]
+            )
+        ]
+    ]
   in
   RuleSet.register
     ~applies_after: [RuleSet.lookup "('a -> 'b) -> ('c -> 'd)"]
@@ -476,22 +492,24 @@ let () =
     let ocast = ExtList.ft casts in
     let icasts = ExtList.bd casts in
     [%expr fun f ->
-      [%e Exp.fun_
-        Nolabel
-        None
-        (Pat.tuple (List.mapi (fun i _ -> mkpatvar i) icasts))
-        (
-          Exp.apply
-            ocast
-            [
-              Nolabel,
-              (
-                Exp.apply
-                  [%expr f]
-                  (List.mapi (fun i icast -> (Nolabel, Exp.apply icast [Nolabel, mkident i])) icasts)
-              );
-            ]
-        )]]
+        [%e Exp.fun_
+            Nolabel
+            None
+            (Pat.tuple (List.mapi (fun i _ -> mkpatvar i) icasts))
+            (
+              Exp.apply
+                ocast
+                [
+                  Nolabel,
+                  (
+                    Exp.apply
+                      [%expr f]
+                      (List.mapi (fun i icast -> (Nolabel, Exp.apply icast [Nolabel, mkident i])) icasts)
+                  );
+                ]
+            )
+        ]
+    ]
   in
   RuleSet.register
     ~applies_after: [RuleSet.lookup "('a -> 'b) -> ('c -> 'd)"]

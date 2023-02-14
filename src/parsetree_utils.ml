@@ -3,7 +3,7 @@ open Parsetree
 open Ast_helper
 
 let mknoloc (txt : 'a) : 'a Ppxlib.Location.loc =
-  { txt; loc = Ppxlib.Location.none }
+  { txt; loc = Ppxlib.Location.none; }
 
 let rec equal_core_type t t' =
   equal_core_type_desc t.ptyp_desc t'.ptyp_desc

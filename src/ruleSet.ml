@@ -12,7 +12,7 @@ type cell = {
 }
 
 let make_cell ?(level = (-1)) ?(higher = []) rule =
-  { rule; higher; level }
+  { rule; higher; level; }
 
 let identity =
   let name = "'a -> 'a" in
