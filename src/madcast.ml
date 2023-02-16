@@ -254,7 +254,7 @@ let () =
 let () =
   let name = "<tuple> -> 'b array" in
   let matcher = function
-    | { ptyp_desc = Ptyp_tuple itypes; _ } , [%type: [%t? otype] array] ->
+    | { ptyp_desc = Ptyp_tuple itypes; _ }, [%type: [%t? otype] array] ->
       Some (List.map (fun itype -> (itype, otype)) itypes)
     | _ -> None
   in
@@ -294,7 +294,7 @@ let () =
 let () =
   let name = "<tuple> array -> 'a array" in
   let matcher = function
-    | [%type: [%t? { ptyp_desc = Ptyp_tuple itypes; _ } ] array], [%type: [%t? otype] array] ->
+    | [%type: [%t? { ptyp_desc = Ptyp_tuple itypes; _ }] array], [%type: [%t? otype] array] ->
       Some [Typ.tuple itypes, [%type: [%t otype] array]]
     | _ -> None
   in
@@ -313,7 +313,7 @@ let () =
 let () =
   let name = "'a array -> <tuple> array" in
   let matcher = function
-    | [%type: [%t? itype] array], [%type: [%t? { ptyp_desc = Ptyp_tuple otypes; _ } ] array] ->
+    | [%type: [%t? itype] array], [%type: [%t? { ptyp_desc = Ptyp_tuple otypes; _ }] array] ->
       Some (List.map (fun otype -> (itype, otype)) otypes)
     | _ -> None
   in
@@ -380,7 +380,7 @@ let () =
 let () =
   let name = "<tuple> -> <tuple>" in
   let matcher = function
-    | { ptyp_desc = Ptyp_tuple itypes; _ } , { ptyp_desc = Ptyp_tuple otypes; _ } when List.length itypes = List.length otypes ->
+    | { ptyp_desc = Ptyp_tuple itypes; _ }, { ptyp_desc = Ptyp_tuple otypes; _ } when List.length itypes = List.length otypes ->
       Some (List.combine itypes otypes)
     | _ -> None
   in
@@ -414,7 +414,7 @@ let () =
   let name = "currying" in
   let matcher (itype, otype) =
     match itype with
-    | [%type: [%t? { ptyp_desc = Ptyp_tuple iitypes; _ } ] -> [%t? iotype]] ->
+    | [%type: [%t? { ptyp_desc = Ptyp_tuple iitypes; _ }] -> [%t? iotype]] ->
       (
         let rec matcher = function
           | ([], ootype) -> [(iotype, ootype)] (* this is the right order *)
@@ -473,7 +473,7 @@ let () =
   let name = "uncurrying" in
   let matcher (itype, otype) =
     match otype with
-    | [%type: [%t? { ptyp_desc = Ptyp_tuple oitypes; _ } ] -> [%t? ootype]] ->
+    | [%type: [%t? { ptyp_desc = Ptyp_tuple oitypes; _ }] -> [%t? ootype]] ->
       (
         let rec matcher = function
           | (iotype, []) -> [(iotype, ootype)] (* this is the right order *)
