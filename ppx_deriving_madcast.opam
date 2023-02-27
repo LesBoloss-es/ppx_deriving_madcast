@@ -20,11 +20,11 @@ tags: ["syntax"]
 homepage: "https://github.com/LesBoloss-es/ppx_deriving_madcast"
 bug-reports: "https://github.com/LesBoloss-es/ppx_deriving_madcast/issues"
 depends: [
-  "dune" {build}
-  "ocaml" {build}
+  "dune" {build & >= "2.5"}
+  "ocaml" {>= "4.05.0"}
   "odoc" {with-test}
-  "ppx_deriving"
-  "ppxlib"
+  "ppx_deriving" {build & >= "5.0"}
+  "ppxlib" {>= "0.15.0"}
 ]
 build: [
   ["dune" "subst"] {pinned}
