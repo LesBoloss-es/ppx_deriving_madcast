@@ -87,7 +87,7 @@ jobs:
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Nix caches
-        uses: cachix/cachix-action@v11
+        uses: cachix/cachix-action@v12
         with:
           name: ppx-deriving-madcast
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
