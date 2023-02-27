@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v3.3.0
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v18
+        uses: cachix/install-nix-action@v19
         with:
           extra_nix_config: |
             ## Access token to avoid triggering GitHub's rate limiting.
@@ -49,7 +49,7 @@ jobs:
         uses: actions/checkout@v3.3.0
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v18
+        uses: cachix/install-nix-action@v19
         with:
           extra_nix_config: |
             ## Access token to avoid triggering GitHub's rate limiting.
@@ -80,14 +80,14 @@ jobs:
         uses: actions/checkout@v3.3.0
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v18
+        uses: cachix/install-nix-action@v19
         with:
           extra_nix_config: |
             ## Access token to avoid triggering GitHub's rate limiting.
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Nix caches
-        uses: cachix/cachix-action@v11
+        uses: cachix/cachix-action@v12
         with:
           name: ppx-deriving-madcast
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
