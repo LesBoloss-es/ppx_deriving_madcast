@@ -27,9 +27,9 @@
  (maintainers "Niols <niols@niols.fr>")
 
  (depends
-  (dune          :build)
-  (ocaml         :build)
+  (dune          (and :build (>= "2.5")))
+  (ocaml         (>= "4.05.0"))
   (odoc          :with-test)
-   ppx_deriving
-   ppxlib
+  (ppx_deriving  (and :build (>= "5.0")))
+  (ppxlib        (>= "0.15.0"))
  ))
