@@ -3,8 +3,7 @@
     opam-nix.url = "github:tweag/opam-nix";
     nixpkgs.follows = "opam-nix/nixpkgs";
     flake-parts.url = "github:hercules-ci/flake-parts";
-    pre-commit-hooks.url =
-      "github:niols/pre-commit-hooks.nix/add-various-ocaml-hooks";
+    pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
     topiary.url = "github:tweag/topiary";
   };
 
