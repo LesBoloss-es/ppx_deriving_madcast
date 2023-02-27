@@ -18,8 +18,6 @@
         ./.nix/package-default.nix
         ./.nix/perinput-lib.nix
         ./.nix/pre-commit-settings.nix
-        ./.nix/pre-commit-settings-dune-opam-sync.nix
-        ./.nix/pre-commit-settings-opam-lint.nix
         ./.nix/pre-commit-settings-topiary.nix
         ./.nix/systems.nix
       ];
