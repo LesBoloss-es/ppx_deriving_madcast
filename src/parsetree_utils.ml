@@ -3,7 +3,7 @@ open Parsetree
 open Ast_helper
 
 let mknoloc (txt : 'a) : 'a Ppxlib.Location.loc =
-  { txt; loc = Ppxlib.Location.none }
+  { txt; loc = Ppxlib.Location.none; }
 
 let rec equal_core_type t t' =
   equal_core_type_desc t.ptyp_desc t'.ptyp_desc
@@ -39,7 +39,7 @@ let variables_of_core_type t =
     | _ -> assert false
   in
   let set = variables_of_core_type SSet.empty t in
-  SSet.fold (fun x acc -> x::acc) set []
+  SSet.fold (fun x acc -> x :: acc) set []
 
 let universal_closure_of_core_type t =
   Typ.poly (List.map mknoloc (variables_of_core_type t)) t
