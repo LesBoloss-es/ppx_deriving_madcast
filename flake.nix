@@ -4,7 +4,7 @@
     nixpkgs.follows = "opam-nix/nixpkgs";
     flake-parts.url = "github:hercules-ci/flake-parts";
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
-    topiary.url = "github:tweag/topiary?ref=niols/pre-commit-hook.nix";
+    topiary.url = "github:tweag/topiary";
   };
 
   outputs = inputs@{ flake-parts, ... }:
