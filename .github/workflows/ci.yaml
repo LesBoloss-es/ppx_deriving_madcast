@@ -30,7 +30,7 @@ jobs:
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Nix cache
-        uses: cachix/cachix-action@v12
+        uses: cachix/cachix-action@v13
         with:
           name: ppx-deriving-madcast
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
@@ -56,7 +56,7 @@ jobs:
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Nix cache
-        uses: cachix/cachix-action@v12
+        uses: cachix/cachix-action@v13
         with:
           name: ppx-deriving-madcast
 
@@ -87,7 +87,7 @@ jobs:
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Nix caches
-        uses: cachix/cachix-action@v12
+        uses: cachix/cachix-action@v13
         with:
           name: ppx-deriving-madcast
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
