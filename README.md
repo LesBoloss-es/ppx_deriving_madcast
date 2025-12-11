@@ -3,6 +3,9 @@
 
 _Madcast_ is a library deriving cast functions based on their types.
 
+> [!WARNING]
+> This repository was merged into [lesboloss-es/camelotte](https://github.com/LesBoloss-es/camelotte/). It is unmaintained.
+
 ## Examples
 
 ### Base types
